@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rayuela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{
+  --crema:#FFF9F0; --tinta:#2E2A45; --tinta-suave:#5B5570;
+  --azul:#2E6FA7; --verde-ok:#2E8A6B; --rojo:#C4483A;
+  --rosa:#F6A9C1; --amarillo:#FFCB4D; --brote:#7FD1B9; --cielo:#8EC6F0; --violeta:#B79CE8;
+  --borde:#E3D9C9; --papel:#FFFFFF;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --cuerpo:"Atkinson Hyperlegible",Verdana,Tahoma,system-ui,sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box}
+#ray{font-family:var(--cuerpo);color:var(--tinta);background:var(--crema);line-height:1.5;
+  font-size:16px;letter-spacing:.01em;padding:0 0 48px;min-height:100vh}
+#ray h1,#ray h2,#ray h3{font-family:var(--display);font-weight:600;line-height:1.25;margin:0}
+#ray h1{font-size:28px} #ray h2{font-size:22px} #ray h3{font-size:18px}
+#ray p{margin:0 0 12px;max-width:68ch}
+#ray button{font-family:var(--cuerpo);font-size:16px;cursor:pointer}
+#ray :focus-visible{outline:3px solid var(--azul);outline-offset:3px;border-radius:6px}
+.wrap{max-width:920px;margin:0 auto;padding:0 20px}
+.topbar{background:var(--papel);border-bottom:1px solid var(--borde);padding:14px 0;margin-bottom:28px}
+.topbar .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:.02em}
+.brand small{color:var(--tinta-suave);font-size:13px}
+.spacer{flex:1}
+.btn{border:none;border-radius:999px;padding:14px 24px;background:var(--azul);color:#fff;
+  font-weight:700;min-height:48px;display:inline-flex;align-items:center;gap:9px;text-decoration:none}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--azul);border:2px solid var(--azul)}
+.btn.quiet{background:transparent;color:var(--tinta-suave);border:2px solid var(--borde)}
+.btn.ok{background:var(--verde-ok)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--papel);border:1px solid var(--borde);border-radius:var(--r);padding:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+label{display:block;font-weight:700;margin:0 0 6px;font-size:15px}
+.hint{color:var(--tinta-suave);font-size:14px;margin:0 0 10px}
+input[type=text],textarea,select{width:100%;font-family:var(--cuerpo);font-size:16px;color:var(--tinta);
+  background:var(--papel);border:2px solid var(--borde);border-radius:10px;padding:12px;line-height:1.5}
+textarea{min-height:120px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--azul);outline:none}
+.pick{display:grid;gap:12px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:var(--papel);
+  border:2px solid var(--borde);border-radius:var(--r);padding:16px;min-height:48px}
+.opt:hover{border-color:var(--azul)}
+.opt[aria-pressed=true]{border-color:var(--azul);background:#EAF2F9;box-shadow:inset 0 0 0 1px var(--azul)}
+.opt .tick{width:26px;height:26px;border-radius:50%;border:2px solid var(--borde);flex:none;
+  display:grid;place-items:center;font-size:15px;color:transparent;margin-top:2px}
+.opt[aria-pressed=true] .tick{border-color:var(--azul);background:var(--azul);color:#fff}
+.opt b{display:block;font-size:16px}
+.opt span{color:var(--tinta-suave);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:2px solid var(--borde);background:var(--papel);border-radius:999px;padding:10px 16px;
+  min-height:44px;font-weight:700;color:var(--tinta)}
+.chip[aria-pressed=true]{background:var(--azul);color:#fff;border-color:var(--azul)}
+.chip.sm{font-weight:400;font-size:14px;padding:8px 14px;min-height:40px}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.between{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.stepnav{display:flex;justify-content:space-between;gap:12px;margin-top:26px;flex-wrap:wrap}
+.tag{display:inline-block;background:#F1EDE4;border-radius:999px;padding:4px 12px;font-size:13px;
+  color:var(--tinta-suave);font-weight:700}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.casilleros{display:flex;align-items:flex-end;gap:8px;justify-content:center;margin:0 0 22px}
+.cas{width:60px;height:56px;border:2px solid var(--borde);background:var(--papel);border-radius:8px;
+  display:grid;place-items:center;font-family:var(--display);font-weight:600;color:var(--tinta-suave);
+  font-size:13px;text-align:center;line-height:1.15;padding:4px;position:relative}
+.cas:nth-child(odd){transform:rotate(-1.2deg)} .cas:nth-child(even){transform:rotate(1deg)}
+.cas.done{background:#E9F6F1;border-color:var(--brote);color:var(--verde-ok)}
+.cas.now{border-color:var(--azul);background:#EAF2F9;color:var(--azul);border-width:3px}
+.cas .tz{position:absolute;top:-26px;left:50%;transform:translateX(-50%)}
+@media(max-width:620px){.cas{width:46px;height:48px;font-size:11px}}
+.act{border:2px solid var(--borde);border-radius:12px;padding:12px 14px;background:var(--papel);
+  display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.act b{flex:1}
+.count{display:flex;align-items:center;gap:8px}
+.count button{width:40px;height:40px;border-radius:10px;border:2px solid var(--borde);
+  background:var(--papel);font-size:20px;font-weight:700;color:var(--azul);line-height:1}
+.count span{min-width:26px;text-align:center;font-weight:700}
+.iconbtn{width:40px;height:40px;border-radius:10px;border:2px solid var(--borde);background:var(--papel);
+  color:var(--tinta-suave);font-size:16px}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.sw{width:44px;height:44px;border-radius:50%;border:3px solid transparent;box-shadow:0 0 0 2px var(--borde)}
+.sw[aria-pressed=true]{border-color:var(--papel);box-shadow:0 0 0 3px var(--tinta)}
+.note{background:#FDF4E3;border:1px solid #F0DDB8;border-radius:12px;padding:14px 16px;font-size:14.5px}
+.note.info{background:#EAF2F9;border-color:#C7DDEF}
+.note.warn{background:#FBEDEB;border-color:#EFCFCA}
+.summary{display:grid;gap:12px}
+.sumrow{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--borde);border-radius:12px;
+  padding:14px;background:var(--papel)}
+.sumrow .ck{color:var(--verde-ok);font-weight:700;font-size:18px;line-height:1.2}
+.sumrow small{display:block;color:var(--tinta-suave);font-size:14px}
+.doc{background:var(--papel);border:1px solid var(--borde);border-radius:var(--r);padding:34px 38px}
+.doc h2{margin:0 0 6px}
+.doc .lead{color:var(--tinta-suave);font-size:14px;margin-bottom:20px}
+.doc .blk{margin:0 0 18px}
+.doc .voc{display:flex;gap:14px;align-items:center;background:#FFF6DF;border-radius:12px;padding:12px 14px;margin:0 0 12px}
+.doc .voc img{width:64px;height:64px;object-fit:contain;flex:none;background:#fff;border-radius:8px}
+.doc .exline{border-bottom:1.5px dotted #B9B3C4;height:26px;margin:8px 0}
+.doc .ilustracionAct{width:100%;max-width:520px;display:block;margin:6px auto 12px;border-radius:16px;
+  border:1px solid var(--borde);background:#fff}
+.doc svg{max-width:100%;height:auto}
+.doc .ficha{margin:0 0 26px}
+.doc .claseHead{border-left:4px solid var(--borde);padding:2px 0 2px 14px;margin:0 0 10px;font-size:.92em}
+.doc .claseHead p{margin:0 0 3px}
+.doc .cierre{margin:8px 0 0;font-size:.95em}
+.doc ol,.doc ul{padding-left:22px;margin:8px 0}
+.doc li{margin:0 0 8px}
+.doc .consigna{font-weight:700}
+.pill{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;margin-left:8px;
+  background:#EFEBFA;color:#4A3E7A}
+.loading{display:grid;place-items:center;gap:16px;padding:52px 20px;text-align:center}
+@keyframes hop{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-14px) rotate(4deg)}}
+.hop{animation:hop 1.4s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){.hop{animation:none}}
+.hidden{display:none!important}
+.perfilcard{border:2px solid var(--borde);border-radius:12px;padding:14px;background:var(--papel);margin-bottom:10px}
+.doc[data-size=grande]{font-size:19px} .doc[data-size=muy]{font-size:23px}
+.doc[data-lead=amplio]{line-height:1.9}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div id="ray">
+  <div class="topbar"><div class="wrap">
+    <div class="brand" id="brandHome" role="button" tabindex="0">
+      <svg width="42" height="42" viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="4" y="26" width="17" height="17" rx="3" fill="none" stroke="#2E2A45" stroke-width="2.4" transform="rotate(-3 12 34)"/>
+        <rect x="26" y="26" width="17" height="17" rx="3" fill="none" stroke="#2E2A45" stroke-width="2.4" transform="rotate(2 34 34)"/>
+        <path d="M11 27C13 12 26 8 33 15" fill="none" stroke="#F6A9C1" stroke-width="3.4" stroke-linecap="round"/>
+        <circle cx="34" cy="17" r="4.6" fill="#FFCB4D" stroke="#2E2A45" stroke-width="2.2"/>
+      </svg>
+      <div><b>Rayuela</b><br><small>Contenido que saca barreras</small></div>
+    </div>
+    <div class="spacer"></div>
+    <span id="usuarioActual" class="hint" style="margin:0 4px 0 0"></span>
+    <button class="btn quiet hidden" id="navPerfiles">Perfiles de alumnos</button>
+    <button class="btn quiet hidden" id="navSalir">Cerrar sesión</button>
+  </div></div>
+
+  <main class="wrap">
+    <section id="scLogin"></section>
+    <section id="scHome" class="hidden"></section>
+    <section id="scWizard" class="hidden"></section>
+    <section id="scLoad" class="hidden"></section>
+    <section id="scDoc" class="hidden"></section>
+    <section id="scPerfiles" class="hidden"></section>
+  </main>
+</div>
+
+<script>
+/* ====================== DATOS PEDAGÓGICOS ======================
+   Todo lo de acá sale del manual "Todos los niños aprenden",
+   del cuadernillo de actividades y del manual de marca Rayuela. */
+
+const NIVELES = [
+  {id:"poco", nom:"Poco significativa", sub:"Más accesible, mismo contenido.",
+   desc:"Simplifica vocabulario, ordena las consignas y mejora la claridad. No baja el nivel de exigencia ni cambia el objetivo.",
+   regla:"Mantené el contenido y el nivel de exigencia intactos. Simplificá vocabulario, acortá oraciones, numerá pasos, una consigna por línea. No elimines información ni conceptos."},
+  {id:"signif", nom:"Significativa", sub:"Menor carga cognitiva.",
+   desc:"Reformula consignas, reduce pasos complejos y suma apoyos visuales. Actividades más guiadas y directas.",
+   regla:"Reformulá consignas a lenguaje directo y literal, reducí la cantidad de pasos, agregá apoyos visuales y ejemplos resueltos. Conservá el objetivo de aprendizaje y los conceptos centrales; podés reducir la cantidad de información secundaria."},
+  {id:"muy", nom:"Muy significativa", sub:"Idea simple y concreta.",
+   desc:"Trabaja las ideas centrales con lenguaje muy concreto, apoyo visual permanente y respuestas de baja demanda motriz o verbal.",
+   regla:"Reducí a 2 o 3 ideas centrales, en oraciones muy cortas y concretas, sin lenguaje figurado. Apoyo visual en cada idea. Ofrecé respuestas de baja demanda (señalar, elegir, unir, completar con una palabra). Nunca infantilices el tono ni las imágenes: la edad cronológica se respeta."}
+];
+
+const CONDICIONES = [
+  {id:"tea", nom:"TEA (autismo)", ajuste:"Consignas literales, sin lenguaje figurado ni doble negación. Estructura visible: qué hago, cuánto falta, cómo sé que terminé. Modelo terminado a la vista. Anticipar cambios. Usar el interés propio del chico como contexto de los ejemplos."},
+  {id:"tdah", nom:"TDAH", ajuste:"Fragmentar en bloques de 5 a 15 minutos con cierre visible. Máximo dos pasos por consigna. Menos ítems por página. Checklist para marcar avance. Feedback inmediato."},
+  {id:"dislexia", nom:"Dislexia", ajuste:"Texto en fuente sin serifa, interlineado amplio, sin bloques largos. Nunca penalizar ortografía si no es el objetivo. Ofrecer la opción de escuchar el texto y de responder oralmente. Vocabulario clave destacado con imagen."},
+  {id:"discalculia", nom:"Discalculia", ajuste:"Secuencia concreto - pictórico - símbolo. Material manipulable o dibujo antes del número. Menos ítems, más apoyo visual. Tabla de apoyo disponible. Nunca cronometrar el cálculo."},
+  {id:"disgrafia", nom:"Disgrafía o dispraxia (TDC)", ajuste:"Reducir la cantidad de escritura, no la calidad de la tarea: textos con huecos, opción múltiple, tarjetas para ordenar. Permitir respuesta oral, dictada o tipeada. Renglones amplios. Nunca copiar del pizarrón en volumen."},
+  {id:"tdl", nom:"TDL / TEL (lenguaje)", ajuste:"Oraciones cortas con estructura simple. Vocabulario nuevo explicado con imagen y ejemplo. Consigna dicha y escrita. Dar tiempo extra de procesamiento. Preguntas cerradas antes que abiertas."},
+  {id:"intelectual", nom:"Discapacidad intelectual", ajuste:"Menos contenidos con más profundidad. Descomponer en pasos observables. Muchas actividades con la misma consigna para que la energía se use en el contenido. Priorizar lo funcional y transferible. Objetivos en conducta observable."},
+  {id:"down", nom:"Síndrome de Down", ajuste:"Entrada visual siempre: la memoria y el procesamiento visual son el punto fuerte. Lectura como vía de acceso al lenguaje. Instrucciones nunca solo orales. Frases cortas apoyadas en imagen."},
+  {id:"sordera", nom:"Sordera o hipoacusia", ajuste:"Todo lo oral también escrito o visual. Vocabulario y lenguaje figurado enseñados de forma explícita, no por exposición. No dar por supuestos conocimientos que se adquieren de oído. Apoyo visual en cada consigna."},
+  {id:"baja_vision", nom:"Baja visión", ajuste:"Macrotipo (18 pt o más), alto contraste, sin texto sobre imágenes. Gráficos ampliados y simplificados, sin detalle decorativo. Mucho espacio en blanco. Tiempo adicional."},
+  {id:"ceguera", nom:"Ceguera", ajuste:"Todo contenido visual necesita descripción verbal completa dentro del texto. Evitar referencias del tipo esto va acá. Preferir consignas resolubles en audio, braille o tecleo. Describir cada imagen en palabras."},
+  {id:"motriz", nom:"Discapacidad motriz o PC", ajuste:"Respuestas de baja demanda motriz: señalar, elegir, marcar, dictar. Áreas de respuesta amplias. Menos cantidad de escritura. Permitir apoyo de escriba o computadora."},
+  {id:"altas", nom:"Altas capacidades", ajuste:"Compactar lo que ya domina y liberar tiempo para profundizar. Tareas abiertas con producto propio. Preguntas de análisis crítico y creación. Nunca más de lo mismo como premio."},
+  {id:"ansiedad", nom:"Ansiedad o trauma", ajuste:"Predictibilidad total: decir de antemano qué viene, cuánto dura y cómo se evalúa. Baja apuesta emocional. Nada de exposición pública ni comparación. Permitir empezar por la parte más fácil."}
+];
+
+const CANALES = ["Oral","Visual","Escrito","Gestual","Demostración"];
+
+const AREAS = [
+  {id:"lengua", nom:"Prácticas del Lenguaje",
+   inneg:"Que construya el sentido del texto y organice ideas propias.",
+   negoc:"Si lo lee, lo escucha o lo ve; si escribe a mano, tipea, dicta o graba. La ortografía no se penaliza salvo que sea el objetivo declarado."},
+  {id:"mate", nom:"Matemática",
+   inneg:"Que elija la operación y justifique; que estime y compare.",
+   negoc:"Calculadora, material concreto, cantidad de ítems, formato y tiempo, tabla de apoyo."},
+  {id:"naturales", nom:"Ciencias Naturales",
+   inneg:"La relación causal del fenómeno; observar, registrar y concluir.",
+   negoc:"El formato: oral, esquema, maqueta o audio. El rol dentro del grupo y la forma de registro."},
+  {id:"sociales", nom:"Ciencias Sociales",
+   inneg:"La secuencia temporal, y las causas y consecuencias del proceso.",
+   negoc:"Línea de tiempo ilustrada en vez de texto, cantidad de causas, fuente adaptada o en audio."},
+  {id:"etica", nom:"Formación Ética y Ciudadana",
+   inneg:"Que tome posición y considere el punto de vista del otro.",
+   negoc:"Cómo lo expresa: oral, dibujo, dramatización, elección entre opciones."},
+  {id:"artistica", nom:"Educación Artística o Tecnología",
+   inneg:"La idea y la intención de la producción.",
+   negoc:"Casi todo el formato y los materiales."}
+];
+
+const HERRAMIENTAS = [
+  {id:"piedra", nom:"La piedra en el estanque", aula:"La palabra que hace olas", desc:"Una palabra al centro genera ondas: rimas, sonidos iguales, palabras parecidas. Ideal para vocabulario y conciencia fonológica."},
+  {id:"binomio", nom:"Binomio fantástico", aula:"Las dos palabras que se chocan", desc:"Dos palabras muy distintas unidas por una preposición generan una historia. La herramienta más democrática: solo hace falta saber dos palabras."},
+  {id:"hipotesis", nom:"Hipótesis fantástica", aula:"¿Qué pasaría si...?", desc:"Un supuesto absurdo desarrollado con lógica. Enseña razonamiento causal disfrazado de juego."},
+  {id:"scamper", nom:"SCAMPER", aula:"La máquina de transformar", desc:"Siete preguntas para modificar cualquier cosa: sustituir, combinar, adaptar, modificar, ponerle otro uso, eliminar, reordenar."},
+  {id:"sombreros", nom:"Seis Sombreros", aula:"Los seis anteojos", desc:"Seis formas de mirar lo mismo, una por vez: datos, emociones, riesgos, beneficios, ideas nuevas, organización."},
+  {id:"lluvia", nom:"Lluvia de ideas con reglas", aula:"Todas las ideas entran", desc:"Con las cuatro reglas visibles: no se critica, muchas ideas, se aceptan las locas, se puede mejorar la del otro."},
+  {id:"brainwriting", nom:"Brainwriting 6-3-5", aula:"La ronda de papeles", desc:"Cada uno escribe o dibuja una idea y la pasa; el que recibe agrega. Participan también los que no hablan en público."},
+  {id:"mapa", nom:"Mapa mental", aula:"El árbol de ideas", desc:"Idea central, ramas gruesas, ramitas, color y dibujo. Herramienta creativa y apoyo de accesibilidad a la vez."},
+  {id:"disney", nom:"Método Disney", aula:"Los tres rincones", desc:"Soñador, realista y crítico en tres lugares distintos del aula. El movimiento ayuda a cambiar de modo de pensar."},
+  {id:"morfologica", nom:"Caja morfológica", aula:"La máquina de combinar", desc:"Una tabla de partes y opciones que se combinan al azar. Infinitas variantes con estructura garantizada."},
+  {id:"rutinas", nom:"Rutinas de pensamiento", aula:"Las preguntas de siempre", desc:"Veo - Pienso - Me pregunto; Antes pensaba... ahora pienso. Máximo impacto por minuto invertido."},
+  {id:"design", nom:"Design Thinking infantil", aula:"Los cinco pasos del inventor", desc:"Empatizar, definir, idear, prototipar y probar. Ideal para proyectos con destinatario real."}
+];
+
+const BANCO = [
+  {id:"A1",g:1,her:"piedra",area:"lengua",tit:"El nombre que hace olas",obj:"Identificar el sonido inicial del propio nombre y encontrar palabras que lo compartan.",inneg:"Reconocer y aislar el sonido inicial."},
+  {id:"A2",g:1,her:"binomio",area:"lengua",tit:"Dos palabras que se chocan",obj:"Crear una historia breve a partir de dos palabras sin relación.",inneg:"Producir una secuencia narrativa con inicio y final."},
+  {id:"A3",g:1,her:"morfologica",area:"naturales",tit:"Inventamos un animal del monte",obj:"Combinar características de animales reales y explicar cómo vive y de qué se alimenta.",inneg:"Relacionar características del animal con su ambiente y su alimentación."},
+  {id:"A4",g:1,her:"rutinas",area:"sociales",tit:"Veo, pienso y me pregunto sobre mi barrio",obj:"Describir una imagen del entorno separando lo que se ve de lo que se interpreta.",inneg:"Distinguir observación de interpretación."},
+  {id:"A5",g:1,her:"hipotesis",area:"lengua",tit:"Si los objetos del aula hablaran",obj:"Desarrollar consecuencias lógicas a partir de un supuesto imaginario.",inneg:"Encadenar una causa con su consecuencia."},
+  {id:"A7",g:1,her:"scamper",area:"mate",tit:"El número escondido",obj:"Transformar cantidades y explicar qué cambió en el número.",inneg:"Comprender que la cantidad cambia al agregar o quitar."},
+  {id:"A8",g:1,her:"mapa",area:"naturales",tit:"Mi primer mapa mental",obj:"Organizar en ramas lo que sabemos de un tema con dibujo y palabra.",inneg:"Agrupar información por categorías."},
+  {id:"A10",g:1,her:"design",area:"mate",tit:"La caja de los problemas",obj:"Inventar y resolver problemas matemáticos con situaciones reales del aula.",inneg:"Elegir la operación adecuada y justificarla."},
+  {id:"B1",g:2,her:"sombreros",area:"etica",tit:"Decidimos qué hacer con el patio",obj:"Analizar una decisión colectiva desde seis puntos de vista distintos.",inneg:"Considerar más de una perspectiva antes de decidir."},
+  {id:"B2",g:2,her:"scamper",area:"lengua",tit:"Reinventamos un cuento conocido",obj:"Transformar un cuento aplicando las siete operaciones de SCAMPER.",inneg:"Mantener la coherencia narrativa después del cambio."},
+  {id:"B5",g:2,her:"morfologica",area:"mate",tit:"La máquina de multiplicar",obj:"Pasar del material concreto al dibujo y al símbolo en la multiplicación.",inneg:"Comprender la multiplicación como suma repetida."},
+  {id:"B7",g:2,her:"mapa",area:"naturales",tit:"La biomímesis del grado",obj:"Encontrar soluciones de la naturaleza que resuelvan un problema humano.",inneg:"Establecer una analogía entre estructura y función."},
+  {id:"B8",g:2,her:"mapa",area:"lengua",tit:"El mapa mental de estudio",obj:"Organizar el contenido de un texto en un mapa para poder estudiarlo.",inneg:"Jerarquizar idea principal y secundarias."},
+  {id:"C1",g:3,her:"design",area:"etica",tit:"El desafío del aula accesible",obj:"Detectar una barrera del aula y prototipar una solución.",inneg:"Identificar la barrera y justificar la solución propuesta."},
+  {id:"C3",g:3,her:"scamper",area:"mate",tit:"La máquina de transformar problemas",obj:"Modificar un problema matemático y anticipar cómo cambia la resolución.",inneg:"Reconocer qué dato cambia la operación necesaria."},
+  {id:"C4",g:3,her:"mapa",area:"lengua",tit:"Taller de escritura con planificación",obj:"Planificar, escribir y revisar un texto propio con una estructura dada.",inneg:"Organizar ideas propias en un texto con estructura."},
+  {id:"C5",g:3,her:"morfologica",area:"mate",tit:"Fracciones en la cocina",obj:"Repartir cantidades en partes iguales y nombrarlas como fracciones.",inneg:"Comprender la fracción como parte de un entero."},
+  {id:"C7",g:3,her:"rutinas",area:"naturales",tit:"Preguntas investigables",obj:"Formular una pregunta que se pueda responder con una experiencia.",inneg:"Distinguir una pregunta investigable de una que no lo es."},
+  {id:"C10",g:3,her:"rutinas",area:"sociales",tit:"Antes pensaba, ahora pienso",obj:"Comparar lo que se creía al inicio con lo aprendido al final de la unidad.",inneg:"Reconocer el cambio en el propio pensamiento."}
+];
+
+const TIPOS_ACT = [
+  {id:"multiple", nom:"Multiple choice", desc:"Una pregunta, opciones ilustradas para rodear", plantilla:"opcion-visual", g:[1,2,3]},
+  {id:"vf", nom:"Verdadero o falso", desc:"Afirmaciones para marcar", plantilla:"opcion-visual", g:[1,2,3]},
+  {id:"binaria", nom:"Selección binaria", desc:"Elegir entre dos opciones ilustradas", plantilla:"opcion-visual", g:[1,2,3]},
+  {id:"completar", nom:"Completar con apoyo", desc:"Hueco con el dibujo de la palabra al lado", plantilla:"completar-con-apoyo", g:[1,2,3]},
+  {id:"unir", nom:"Unir con flechas", desc:"Dos columnas ilustradas para relacionar", plantilla:"unir-con-flechas", g:[1,2,3]},
+  {id:"abierta", nom:"Preguntas abiertas", desc:"Pregunta con dibujo y renglones", plantilla:"pregunta-con-icono", g:[1,2,3]},
+  {id:"escritura", nom:"Consignas de escritura", desc:"Producción con estructura dada", plantilla:"pregunta-con-icono", g:[2,3]},
+  {id:"ordenar", nom:"Ordenar la secuencia", desc:"Viñetas para numerar en orden", plantilla:"secuencia-para-ordenar", g:[1,2,3]},
+  {id:"dibujar", nom:"Dibujar o señalar", desc:"Marco de dibujo, sin demanda de escritura", plantilla:"marco-dibujo", g:[1,2,3]},
+  {id:"conteo", nom:"Contar y escribir", desc:"Filas de dibujos y casillero para la cantidad", plantilla:"conteo-clipart", g:[1,2]},
+  {id:"trazado", nom:"Trazar letra o número", desc:"Trazo grande punteado con su referente", plantilla:"trazado-grande", g:[1,2]},
+  {id:"clasificar", nom:"Clasificar en tabla", desc:"Dos columnas para agrupar según un criterio", plantilla:"clasificar-tabla", g:[1,2,3]},
+  {id:"sumar", nom:"Sumar con dibujos", desc:"Grupos de objetos, signo y casillero de resultado", plantilla:"operacion-con-conteo", g:[1,2]},
+  {id:"puntos", nom:"Constelación de puntos", desc:"Patrón tipo dado para contar de un vistazo", plantilla:"constelacion-puntos", g:[1,2]},
+  {id:"arreglo", nom:"Arreglo multiplicativo", desc:"Filas por columnas para ver la multiplicación", plantilla:"arreglo-multiplicativo", g:[2,3]},
+  {id:"texto", nom:"Texto enmarcado", desc:"Texto corto en recuadro para rodear palabras", plantilla:"texto-enmarcado", g:[1,2,3]}
+];
+function plantillaDe(tipo){ const t=byId(TIPOS_ACT,tipo); return (t&&t.plantilla)||"pregunta-con-icono"; }
+
+/* ====== LIBRERÍA DE REFERENTES (íconos propios, trazo grueso, 100x100) ======
+   Sin dependencias externas: se dibujan siempre igual y se pueden rasterizar
+   para meterlos dentro del Word. Paleta afectiva del manual de marca. */
+const T = 'fill="none" stroke="#2E2A45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"';
+const ICONOS = {
+  manzana:{p:'<path d="M50 30c-14-10-32 0-32 22 0 20 14 34 22 34 4 0 6-2 10-2s6 2 10 2c8 0 22-14 22-34 0-22-18-32-32-22z" fill="#E4574C" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M50 30V16" '+T+'/><path d="M50 20c8-6 14-4 14-4s-2 8-14 8z" fill="#7FD1B9" stroke="#2E2A45" stroke-width="4"/>', k:["manzana","fruta","manzanas"]},
+  pera:{p:'<path d="M50 24c-6 0-10 6-9 12 1 8-13 14-13 30 0 14 10 22 22 22s22-8 22-22c0-16-14-22-13-30 1-6-3-12-9-12z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5"/><path d="M50 24V14" '+T+'/>', k:["pera","peras"]},
+  uva:{p:'<circle cx="38" cy="56" r="11" fill="#B79CE8" stroke="#2E2A45" stroke-width="4"/><circle cx="62" cy="56" r="11" fill="#B79CE8" stroke="#2E2A45" stroke-width="4"/><circle cx="50" cy="74" r="11" fill="#B79CE8" stroke="#2E2A45" stroke-width="4"/><circle cx="50" cy="40" r="11" fill="#B79CE8" stroke="#2E2A45" stroke-width="4"/><path d="M50 29V14" '+T+'/>', k:["uva","uvas","racimo"]},
+  banana:{p:'<path d="M22 40c0 28 20 42 44 38 6-1 8-6 4-9-18-12-24-22-26-34-1-6-8-6-10-2-4 2-12 3-12 7z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["banana","bananas","plátano"]},
+  estrella:{p:'<path d="M50 16l10 22 24 3-17 17 4 24-21-12-21 12 4-24-17-17 24-3z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["estrella","estrellas","brillo"]},
+  corazon:{p:'<path d="M50 82S18 62 18 42c0-12 9-18 18-18 7 0 12 4 14 8 2-4 7-8 14-8 9 0 18 6 18 18 0 20-32 40-32 40z" fill="#F6A9C1" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["corazon","corazón","amor"]},
+  pelota:{p:'<circle cx="50" cy="52" r="30" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5"/><path d="M20 52h60M50 22c12 12 12 48 0 60M50 22c-12 12-12 48 0 60" '+T+'/>', k:["pelota","pelotas","balon","balón","futbol","fútbol"]},
+  sol:{p:'<circle cx="50" cy="50" r="18" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5"/><path d="M50 18V8M50 92v-10M18 50H8M92 50h-10M27 27l-7-7M73 73l7 7M73 27l7-7M27 73l-7 7" '+T+'/>', k:["sol","dia","día","verano","luz"]},
+  luna:{p:'<path d="M60 18a34 34 0 100 68 28 28 0 010-68z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["luna","noche"]},
+  nube:{p:'<path d="M30 70a16 16 0 010-32 22 22 0 0142-6 15 15 0 013 38z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["nube","nubes","cielo","lluvia"]},
+  casa:{p:'<path d="M18 50L50 22l32 28" '+T+'/><path d="M26 48v34h48V48" fill="#F6A9C1" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><rect x="42" y="60" width="16" height="22" fill="#FFF9F0" stroke="#2E2A45" stroke-width="4"/>', k:["casa","hogar","casas","vivienda"]},
+  arbol:{p:'<circle cx="50" cy="42" r="26" fill="#7FD1B9" stroke="#2E2A45" stroke-width="5"/><path d="M50 68v20" stroke="#2E2A45" stroke-width="8" stroke-linecap="round"/>', k:["arbol","árbol","planta","bosque","hoja","arboles","árboles"]},
+  flor:{p:'<circle cx="50" cy="34" r="11" fill="#F6A9C1" stroke="#2E2A45" stroke-width="4"/><circle cx="34" cy="48" r="11" fill="#F6A9C1" stroke="#2E2A45" stroke-width="4"/><circle cx="66" cy="48" r="11" fill="#F6A9C1" stroke="#2E2A45" stroke-width="4"/><circle cx="50" cy="62" r="11" fill="#F6A9C1" stroke="#2E2A45" stroke-width="4"/><circle cx="50" cy="48" r="8" fill="#FFCB4D" stroke="#2E2A45" stroke-width="4"/><path d="M50 70v20" '+T+'/>', k:["flor","flores","jardin","jardín","primavera"]},
+  pez:{p:'<path d="M64 50c0 14-12 22-24 22-10 0-18-8-18-22s8-22 18-22c12 0 24 8 24 22z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M64 50l18-14v28z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><circle cx="34" cy="44" r="3" fill="#2E2A45"/>', k:["pez","peces","pescado","mar","agua"]},
+  gato:{p:'<circle cx="50" cy="54" r="24" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5"/><path d="M32 36l-4-16 16 8M68 36l4-16-16 8" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><circle cx="42" cy="50" r="3" fill="#2E2A45"/><circle cx="58" cy="50" r="3" fill="#2E2A45"/><path d="M50 58v4M50 62c-3 3-8 2-8-2M50 62c3 3 8 2 8-2" '+T+'/>', k:["gato","gatos","michi","animal","mascota"]},
+  pajaro:{p:'<circle cx="46" cy="52" r="22" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5"/><path d="M66 46l16-6-8 14z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="4" stroke-linejoin="round"/><circle cx="56" cy="44" r="3" fill="#2E2A45"/><path d="M34 60c8 8 20 6 24-2" '+T+'/>', k:["pajaro","pájaro","ave","aves","pajaros"]},
+  mariposa:{p:'<path d="M50 34v36" stroke="#2E2A45" stroke-width="6" stroke-linecap="round"/><path d="M48 40c-10-14-30-12-30 4 0 12 16 16 30 8z" fill="#B79CE8" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M52 40c10-14 30-12 30 4 0 12-16 16-30 8z" fill="#F6A9C1" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["mariposa","insecto","bicho"]},
+  auto:{p:'<path d="M16 62v-10l10-16h48l10 16v10z" fill="#E4574C" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><circle cx="32" cy="66" r="9" fill="#FFF9F0" stroke="#2E2A45" stroke-width="5"/><circle cx="68" cy="66" r="9" fill="#FFF9F0" stroke="#2E2A45" stroke-width="5"/>', k:["auto","coche","carro","vehiculo","vehículo","transporte"]},
+  libro:{p:'<path d="M20 26h24c4 0 6 3 6 6v44c0-3-2-6-6-6H20z" fill="#7FD1B9" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M80 26H56c-4 0-6 3-6 6v44c0-3 2-6 6-6h24z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["libro","libros","leer","lectura","cuento"]},
+  lapiz:{p:'<path d="M26 76l6-16 34-34 10 10-34 34z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M32 60l10 10" '+T+'/>', k:["lapiz","lápiz","escribir","escritura","dibujar"]},
+  globo:{p:'<path d="M50 20c14 0 22 12 22 24 0 14-14 22-22 22s-22-8-22-22c0-12 8-24 22-24z" fill="#F6A9C1" stroke="#2E2A45" stroke-width="5"/><path d="M50 66v22" '+T+'/>', k:["globo","globos","fiesta","cumpleaños"]},
+  taza:{p:'<path d="M24 34h44v26a22 22 0 01-44 0z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/><path d="M68 42h8a10 10 0 010 20h-8" '+T+'/>', k:["taza","vaso","leche","agua","tomar","desayuno"]},
+  reloj:{p:'<circle cx="50" cy="52" r="28" fill="#FFF9F0" stroke="#2E2A45" stroke-width="5"/><path d="M50 34v18l12 8" '+T+'/>', k:["reloj","hora","tiempo","horario"]},
+  persona:{p:'<circle cx="50" cy="32" r="13" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5"/><path d="M24 86c0-16 12-26 26-26s26 10 26 26z" fill="#8EC6F0" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["persona","nene","nena","niño","niña","chico","chica","gente","familia","amigo"]},
+  cuadrado:{p:'<rect x="24" y="26" width="52" height="52" rx="6" fill="#B79CE8" stroke="#2E2A45" stroke-width="5"/>', k:["cuadrado","caja","figura"]},
+  circulo:{p:'<circle cx="50" cy="52" r="27" fill="#7FD1B9" stroke="#2E2A45" stroke-width="5"/>', k:["circulo","círculo","punto","bolita","redondo"]},
+  triangulo:{p:'<path d="M50 22l28 54H22z" fill="#FFCB4D" stroke="#2E2A45" stroke-width="5" stroke-linejoin="round"/>', k:["triangulo","triángulo"]}
+};
+const ICON_KEYS = Object.keys(ICONOS);
+function normalizar(s){
+  return String(s||"").toLowerCase().trim()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+}
+function buscarIcono(palabra){
+  const p = normalizar(palabra);
+  if(!p) return null;
+  for(const k of ICON_KEYS){
+    if(ICONOS[k].k.some(v=>normalizar(v)===p)) return k;
+  }
+  for(const k of ICON_KEYS){
+    if(ICONOS[k].k.some(v=>{const n=normalizar(v); return n.length>3 && (p.includes(n)||n.includes(p));})) return k;
+  }
+  return null;
+}
+/* Dibuja el ícono; si no está en la librería, cae a un marco con la palabra. */
+function icono(palabra, x, y, size){
+  const k = buscarIcono(palabra);
+  const s = size/100;
+  if(k) return '<g transform="translate('+x+','+y+') scale('+s+')">'+ICONOS[k].p+'</g>';
+  const w = String(palabra||"").slice(0,12);
+  return '<g transform="translate('+x+','+y+')">'+
+    '<rect x="'+(size*0.06)+'" y="'+(size*0.12)+'" width="'+(size*0.88)+'" height="'+(size*0.62)+'" rx="'+(size*0.1)+
+    '" fill="#FFF9F0" stroke="#2E2A45" stroke-width="3"/>'+
+    '<text x="'+(size*0.5)+'" y="'+(size*0.47)+'" text-anchor="middle" font-family="Verdana,sans-serif" font-size="'+(size*0.15)+
+    '" fill="#2E2A45">'+esc(w)+'</text></g>';
+}
+
+/* ====================== PLANTILLAS VISUALES ======================
+   Una función de dibujo por plantilla del manual de recursos visuales.
+   Devuelven SVG autocontenido (sin imágenes externas) para que se pueda
+   mostrar en pantalla y rasterizar dentro del Word. */
+const F = 'font-family="Verdana,Arial,sans-serif"';
+function envolver(txt, max){
+  const pal = String(txt||"").split(/\s+/); const out=[]; let l="";
+  pal.forEach(p=>{ if((l+" "+p).trim().length>max){ out.push(l.trim()); l=p; } else l+=" "+p; });
+  if(l.trim()) out.push(l.trim());
+  return out;
+}
+function texto(t,x,y,o){
+  o=o||{}; const size=o.size||16, lh=o.lh||size*1.45, max=o.max||60;
+  const lineas = envolver(t,max);
+  return lineas.map((l,i)=>'<text x="'+x+'" y="'+(y+i*lh)+'" '+F+' font-size="'+size+
+    '" fill="'+(o.color||"#2E2A45")+'"'+(o.bold?' font-weight="bold"':'')+
+    (o.anchor?' text-anchor="'+o.anchor+'"':'')+'>'+esc(l)+'</text>').join("");
+}
+function altoTexto(t,max,size,lh){ return envolver(t,max||60).length*(lh||(size||16)*1.45); }
+function svgWrap(w,h,inner){
+  /* width/height explícitos: sin ellos el SVG rasteriza en blanco al pasarlo al Word */
+  /* Sin CSS adentro: 'height:auto' hace que el SVG rasterice en blanco.
+     El tamaño responsivo se resuelve desde la hoja de estilos (.doc svg). */
+  return '<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" xmlns="http://www.w3.org/2000/svg">'+
+    '<rect width="'+w+'" height="'+h+'" fill="#FFFFFF"/>'+inner+'</svg>';
+}
+const W = 680;
+
+/* 1. Opción visual: enunciado + alternativas con dibujo para rodear */
+function plOpcionVisual(a,col){
+  let y = 12, s = "";
+  (a.items||[]).forEach((it,i)=>{
+    s += texto((i+1)+") "+(it.enunciado||""), 8, y+16, {size:16, max:64});
+    y += altoTexto((i+1)+") "+(it.enunciado||""),64,16) + 8;
+    const ops = (it.opciones&&it.opciones.length)?it.opciones.slice(0,4):["Verdadero","Falso"];
+    const bw = Math.min(150, (W-40)/ops.length);
+    ops.forEach((o,j)=>{
+      const x = 16 + j*(bw+10);
+      s += '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="96" rx="10" fill="#FFF9F0" stroke="'+col+'" stroke-width="2.5"/>';
+      s += icono(it.iconos&&it.iconos[j] ? it.iconos[j] : o, x+bw/2-26, y+6, 52);
+      s += texto(String(o).slice(0,16), x+bw/2, y+80, {size:13, anchor:"middle", max:18});
+    });
+    y += 112;
+  });
+  return svgWrap(W, y+6, s);
+}
+
+/* 2. Unir con flechas: dos columnas ilustradas */
+function plUnir(a,col){
+  const its = (a.items||[]).slice(0,6);
+  const fila = 78, h = its.length*fila + 30;
+  let s = texto("Uní con una línea", 8, 18, {size:14, color:"#5B5570"});
+  its.forEach((it,i)=>{
+    const y = 30 + i*fila;
+    s += '<rect x="10" y="'+y+'" width="250" height="64" rx="10" fill="#FFF9F0" stroke="#2E2A45" stroke-width="2.5"/>';
+    s += icono(it.icono||it.enunciado, 18, y+6, 52);
+    s += texto(String(it.enunciado||"").slice(0,26), 80, y+38, {size:15, max:24});
+    s += '<circle cx="278" cy="'+(y+32)+'" r="6" fill="'+col+'"/>';
+    s += '<circle cx="'+(W-278)+'" cy="'+(y+32)+'" r="6" fill="'+col+'"/>';
+    s += '<rect x="'+(W-260)+'" y="'+y+'" width="250" height="64" rx="10" fill="#FFF9F0" stroke="#2E2A45" stroke-width="2.5"/>';
+    s += texto(String(it.par||it.respuesta||"").slice(0,26), W-248, y+38, {size:15, max:24});
+  });
+  return svgWrap(W, h, s);
+}
+
+/* 3. Completar con apoyo: hueco + dibujo de la palabra al lado */
+function plCompletar(a,col){
+  const its = (a.items||[]).slice(0,6);
+  let y = 10, s = "";
+  if(a.banco&&a.banco.length){
+    s += '<rect x="8" y="'+y+'" width="'+(W-16)+'" height="44" rx="10" fill="#FFF6DF" stroke="#FFCB4D" stroke-width="2.5"/>';
+    s += texto("Palabras: "+a.banco.join("  ·  "), 20, y+28, {size:15, max:62});
+    y += 58;
+  }
+  its.forEach((it,i)=>{
+    s += '<rect x="8" y="'+y+'" width="'+(W-16)+'" height="72" rx="10" fill="#FFFFFF" stroke="#E3D9C9" stroke-width="2"/>';
+    s += icono(it.icono||"", W-78, y+8, 56);
+    s += texto((i+1)+") "+String(it.enunciado||"").replace(/_+/g,"__________"), 20, y+42, {size:16, max:52});
+    y += 82;
+  });
+  return svgWrap(W, y, s);
+}
+
+/* 4. Secuencia para ordenar: viñetas con casillero para numerar */
+function plSecuencia(a,col){
+  const its = (a.items||[]).slice(0,5);
+  const bw = Math.min(160, (W-30)/Math.max(1,its.length));
+  let s = "";
+  its.forEach((it,i)=>{
+    const x = 12 + i*(bw+6);
+    s += '<rect x="'+x+'" y="10" width="'+bw+'" height="120" rx="12" fill="#FFF9F0" stroke="#2E2A45" stroke-width="2.5"/>';
+    s += icono(it.icono||it.enunciado, x+bw/2-32, 18, 64);
+    s += texto(String(it.enunciado||"").slice(0,40), x+bw/2, 96, {size:12, anchor:"middle", max:20});
+    s += '<rect x="'+(x+bw/2-20)+'" y="140" width="40" height="40" rx="8" fill="#FFFFFF" stroke="'+col+'" stroke-width="3"/>';
+  });
+  return svgWrap(W, 192, s);
+}
+
+/* 5. Pregunta con ícono + renglones punteados */
+function plPregunta(a,col,renglones){
+  const its = (a.items||[]).slice(0,6);
+  const n = renglones||2;
+  let y = 8, s = "";
+  its.forEach((it,i)=>{
+    s += icono(it.icono||"", 10, y, 46);
+    s += texto((i+1)+") "+(it.enunciado||""), 66, y+24, {size:16, max:52});
+    y += Math.max(48, altoTexto((i+1)+") "+(it.enunciado||""),52,16)+14);
+    for(let k=0;k<n;k++){
+      s += '<line x1="66" y1="'+y+'" x2="'+(W-14)+'" y2="'+y+'" stroke="#B9B3C4" stroke-width="2" stroke-dasharray="3 5"/>';
+      y += 30;
+    }
+    y += 14;
+  });
+  return svgWrap(W, y, s);
+}
+
+/* 6. Marco de dibujo */
+function plMarcoDibujo(a,col){
+  const its = (a.items||[]).slice(0,3);
+  let y = 8, s = "";
+  its.forEach((it,i)=>{
+    s += texto((i+1)+") "+(it.enunciado||""), 10, y+18, {size:16, max:60});
+    y += altoTexto((i+1)+") "+(it.enunciado||""),60,16) + 10;
+    s += '<rect x="10" y="'+y+'" width="'+(W-20)+'" height="170" rx="14" fill="#FFFFFF" stroke="'+col+
+         '" stroke-width="3" stroke-dasharray="10 8"/>';
+    if(it.icono) s += icono(it.icono, W-84, y+12, 56);
+    y += 186;
+  });
+  return svgWrap(W, y, s);
+}
+
+/* 7. Conteo con clipart: filas de dibujos + casillero de cantidad */
+function plConteo(a,col){
+  const its = (a.items||[]).slice(0,6);
+  let y = 10, s = "";
+  its.forEach(it=>{
+    const n = Math.max(1, Math.min(10, parseInt(it.cantidad,10)||3));
+    const sz = n>7?44:52;
+    s += '<rect x="8" y="'+y+'" width="'+(W-16)+'" height="'+(sz+22)+'" rx="10" fill="#FFF9F0" stroke="#E3D9C9" stroke-width="2"/>';
+    for(let i=0;i<n;i++) s += icono(it.icono||"circulo", 18+i*(sz+4), y+11, sz);
+    s += '<rect x="'+(W-72)+'" y="'+(y+11)+'" width="'+sz+'" height="'+sz+'" rx="8" fill="#FFFFFF" stroke="'+col+'" stroke-width="3"/>';
+    y += sz+32;
+  });
+  s += texto("Contá los dibujos y escribí cuántos hay.", 10, y+8, {size:14, color:"#5B5570"});
+  return svgWrap(W, y+18, s);
+}
+
+/* 8. Trazado grande: glifo punteado + punto de inicio + referentes */
+function plTrazado(a,col){
+  const it = (a.items||[])[0] || {};
+  const glifo = String(it.letra||it.enunciado||"A").trim().slice(0,2).toUpperCase();
+  const n = Math.max(0, Math.min(6, parseInt(it.cantidad,10)||3));
+  let s = '<text x="'+(W/2)+'" y="215" '+F+' font-size="250" text-anchor="middle" fill="none" '+
+    'stroke="#2E2A45" stroke-width="4" stroke-dasharray="12 10">'+esc(glifo)+'</text>';
+  s += '<circle cx="'+(W/2-70)+'" cy="55" r="9" fill="'+col+'"/>';
+  for(let i=0;i<n;i++){
+    const lado = i%2===0 ? 40 : W-100;
+    s += icono(it.icono||"estrella", lado, 40+Math.floor(i/2)*80, 60);
+  }
+  s += texto("Trazá sobre las líneas punteadas. Empezá por el punto de color.", 10, 258, {size:14, color:"#5B5570"});
+  return svgWrap(W, 274, s);
+}
+
+/* 9. Clasificar en tabla */
+function plClasificar(a,col){
+  const its = (a.items||[]).slice(0,8);
+  const cols = [a.columnaA||"Sí", a.columnaB||"No"];
+  const cw = (W-24)/2;
+  let s = "";
+  cols.forEach((c,i)=>{
+    const x = 10+i*(cw+4);
+    s += '<rect x="'+x+'" y="8" width="'+cw+'" height="40" rx="8" fill="'+col+'"/>';
+    s += texto(String(c).slice(0,28), x+cw/2, 34, {size:15, anchor:"middle", color:"#FFFFFF", bold:true, max:28});
+    s += '<rect x="'+x+'" y="50" width="'+cw+'" height="150" fill="#FFFFFF" stroke="#2E2A45" stroke-width="2.5"/>';
+  });
+  let y = 212;
+  s += texto("Recortá y pegá en la columna que corresponde:", 10, y+8, {size:14, color:"#5B5570"});
+  y += 20;
+  const sz = 62;
+  its.forEach((it,i)=>{
+    const x = 10 + (i%8)*(sz+12);
+    const yy = y + Math.floor(i/8)*(sz+30);
+    s += '<rect x="'+x+'" y="'+yy+'" width="'+sz+'" height="'+(sz+22)+'" rx="8" fill="#FFF9F0" stroke="#2E2A45" stroke-width="2" stroke-dasharray="6 5"/>';
+    s += icono(it.icono||it.enunciado, x+3, yy+3, sz-6);
+    s += texto(String(it.enunciado||"").slice(0,12), x+sz/2, yy+sz+16, {size:11, anchor:"middle", max:14});
+  });
+  return svgWrap(W, y + Math.ceil(its.length/8)*(sz+30) + 10, s);
+}
+
+/* 10. Operación con conteo */
+function plOperacion(a,col){
+  const its = (a.items||[]).slice(0,5);
+  let y = 10, s = "";
+  its.forEach(it=>{
+    const n1 = Math.max(1,Math.min(9,parseInt(it.cantidad,10)||2));
+    const n2 = Math.max(1,Math.min(9,parseInt(it.cantidad2,10)||2));
+    const signo = (it.signo==="-")?"−":"+";
+    const sz = 36; let x = 14;
+    s += '<rect x="8" y="'+y+'" width="'+(W-16)+'" height="60" rx="10" fill="#FFF9F0" stroke="#E3D9C9" stroke-width="2"/>';
+    for(let i=0;i<n1;i++){ s += icono(it.icono||"circulo", x, y+12, sz); x += sz+2; }
+    s += '<text x="'+(x+12)+'" y="'+(y+42)+'" '+F+' font-size="30" font-weight="bold" fill="'+col+'">'+signo+'</text>'; x += 38;
+    for(let i=0;i<n2;i++){ s += icono(it.icono2||it.icono||"circulo", x, y+12, sz); x += sz+2; }
+    s += '<text x="'+(x+12)+'" y="'+(y+42)+'" '+F+' font-size="30" font-weight="bold" fill="'+col+'">=</text>';
+    s += '<rect x="'+(W-62)+'" y="'+(y+10)+'" width="42" height="42" rx="8" fill="#FFFFFF" stroke="'+col+'" stroke-width="3"/>';
+    y += 70;
+  });
+  return svgWrap(W, y, s);
+}
+
+/* 11. Constelación de puntos (patrón tipo dado) */
+function PUNTOS(n,x,y,sz){
+  const pos = {1:[[.5,.5]],2:[[.28,.28],[.72,.72]],3:[[.25,.25],[.5,.5],[.75,.75]],
+    4:[[.28,.28],[.72,.28],[.28,.72],[.72,.72]],5:[[.28,.28],[.72,.28],[.5,.5],[.28,.72],[.72,.72]],
+    6:[[.28,.24],[.72,.24],[.28,.5],[.72,.5],[.28,.76],[.72,.76]]};
+  const p = pos[Math.max(1,Math.min(6,n))]||pos[6];
+  return '<rect x="'+x+'" y="'+y+'" width="'+sz+'" height="'+sz+'" rx="10" fill="#FFFFFF" stroke="#2E2A45" stroke-width="3"/>'+
+    p.map(c=>'<circle cx="'+(x+c[0]*sz)+'" cy="'+(y+c[1]*sz)+'" r="'+(sz*0.09)+'" fill="#2E2A45"/>').join("");
+}
+function plPuntos(a,col){
+  const its = (a.items||[]).slice(0,5);
+  let y = 10, s = "";
+  its.forEach(it=>{
+    const n1 = parseInt(it.cantidad,10)||2, n2 = parseInt(it.cantidad2,10)||3;
+    s += PUNTOS(n1, 20, y, 64);
+    s += '<text x="100" y="'+(y+42)+'" '+F+' font-size="30" font-weight="bold" fill="'+col+'">+</text>';
+    s += PUNTOS(n2, 134, y, 64);
+    s += '<text x="214" y="'+(y+42)+'" '+F+' font-size="30" font-weight="bold" fill="'+col+'">=</text>';
+    s += '<rect x="250" y="'+(y+10)+'" width="46" height="46" rx="8" fill="#FFFFFF" stroke="'+col+'" stroke-width="3"/>';
+    y += 78;
+  });
+  s += texto("Contá los puntos de un vistazo, sin señalar de a uno.", 10, y+6, {size:14, color:"#5B5570"});
+  return svgWrap(W, y+16, s);
+}
+
+/* 12. Arreglo multiplicativo: filas x columnas */
+function plArreglo(a,col){
+  const its = (a.items||[]).slice(0,3);
+  let y = 10, s = "";
+  its.forEach(it=>{
+    const f = Math.max(1,Math.min(6,parseInt(it.filas,10)||3));
+    const c = Math.max(1,Math.min(8,parseInt(it.columnas,10)||4));
+    const sz = 40;
+    for(let i=0;i<f;i++) for(let j=0;j<c;j++) s += icono(it.icono||"circulo", 20+j*(sz+4), y+i*(sz+4), sz);
+    const bx = 20+c*(sz+4)+20;
+    s += '<text x="'+bx+'" y="'+(y+f*(sz+4)/2+8)+'" '+F+' font-size="24" font-weight="bold" fill="'+col+'">'+
+         f+' × '+c+' =</text>';
+    s += '<rect x="'+(bx+108)+'" y="'+(y+f*(sz+4)/2-22)+'" width="52" height="46" rx="8" fill="#FFFFFF" stroke="'+col+'" stroke-width="3"/>';
+    y += f*(sz+4)+26;
+  });
+  return svgWrap(W, y, s);
+}
+
+/* 13. Texto enmarcado para rodear palabras */
+function plTextoEnmarcado(a,col){
+  const t = (a.items||[]).map(i=>i.enunciado||"").join(" ") || a.consigna || "";
+  const lineas = envolver(t, 52);
+  const h = lineas.length*30 + 40;
+  let s = '<rect x="8" y="8" width="'+(W-16)+'" height="'+h+'" rx="14" fill="#FFF9F0" stroke="'+col+'" stroke-width="4"/>';
+  s += lineas.map((l,i)=>'<text x="28" y="'+(44+i*30)+'" '+F+' font-size="19" fill="#2E2A45">'+esc(l)+'</text>').join("");
+  return svgWrap(W, h+22, s);
+}
+
+/* Dispatcher */
+function svgActividad(a,col){
+  const p = a.plantilla || plantillaDe(a.tipo);
+  try{
+    switch(p){
+      case "opcion-visual": return plOpcionVisual(a,col);
+      case "unir-con-flechas": return plUnir(a,col);
+      case "completar-con-apoyo": return plCompletar(a,col);
+      case "secuencia-para-ordenar": return plSecuencia(a,col);
+      case "marco-dibujo": return plMarcoDibujo(a,col);
+      case "conteo-clipart": return plConteo(a,col);
+      case "trazado-grande": return plTrazado(a,col);
+      case "clasificar-tabla": return plClasificar(a,col);
+      case "operacion-con-conteo": return plOperacion(a,col);
+      case "constelacion-puntos": return plPuntos(a,col);
+      case "arreglo-multiplicativo": return plArreglo(a,col);
+      case "texto-enmarcado": return plTextoEnmarcado(a,col);
+      default: return plPregunta(a,col, a.tipo==="escritura"?4:2);
+    }
+  }catch(e){ return plPregunta(a,col,2); }
+}
+
+const COGNITIVO = [
+  {id:"literal", nom:"Literal", sub:"Comprensión directa", regla:"Preguntas cuya respuesta está explícita en el texto."},
+  {id:"simple", nom:"Simple", sub:"Inferencias básicas", regla:"Preguntas que requieren una inferencia corta a partir del texto."},
+  {id:"medio", nom:"Medio", sub:"Conexión de conceptos", regla:"Preguntas que exigen relacionar dos ideas del texto o con conocimiento previo."},
+  {id:"complejo", nom:"Complejo", sub:"Análisis crítico", regla:"Preguntas de análisis, juicio fundamentado o creación a partir del contenido."}
+];
+
+const COLORES_ENFASIS = [
+  {id:"azul", nom:"Azul Acción", hex:"#2E6FA7"},
+  {id:"verde", nom:"Verde Confirmación", hex:"#2E8A6B"},
+  {id:"violeta", nom:"Violeta Juego", hex:"#6D4FBF"},
+  {id:"rosa", nom:"Rosa Ternura", hex:"#B03A63"},
+  {id:"tinta", nom:"Tinta Rayuela", hex:"#2E2A45"}
+];
+
+const PASOS = ["Fuente","Alumno","Actividades","Formato","Revisar"];
+
+
+
+/* ====================== ILUSTRACIONES REALES (bajo demanda) ======================
+   Una por actividad, nunca por adelantado. Mientras esto no esté configurado
+   con la URL real de la función de Firebase, la app sigue funcionando con
+   los íconos propios simples como respaldo automático — no se rompe nada. */
+const FN_BASE = "https://us-central1-rayuela-app-279da.cloudfunctions.net";
+const IMG_FN_URL = FN_BASE+"/generarIlustracion";
+const TXT_FN_URL = FN_BASE+"/generarTexto";
+const IMG_MAX_POR_MATERIAL = 6; /* tope de imágenes reales por generación, del lado del cliente */
+async function hashTexto(t){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,24);
+}
+let ULTIMO_ERROR_IMG = "";
+async function ilustracionCacheada(escena){
+  const clave = "rayuela:ilustracion:"+await hashTexto(escena);
+  try{ const v = localStorage.getItem(clave); if(v) return v; }catch(e){}
+  if(!IMG_FN_URL){ ULTIMO_ERROR_IMG = "IMG_FN_URL está vacío"; return null; }
+  try{
+    const token = await tokenActual();
+    const res = await fetch(IMG_FN_URL,{method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
+      body: JSON.stringify({prompt:escena})});
+    let data = null;
+    try{ data = await res.json(); }catch(e2){ ULTIMO_ERROR_IMG = "Respuesta no-JSON, HTTP "+res.status; return null; }
+    if(!res.ok || !data.ok || !data.image){ ULTIMO_ERROR_IMG = "HTTP "+res.status+" — "+(data&&data.error?data.error:"sin detalle"); return null; }
+    try{ localStorage.setItem(clave, data.image); }catch(e){ /* localStorage lleno: sigue sin cachear */ }
+    return data.image;
+  }catch(e){ ULTIMO_ERROR_IMG = "fetch falló: "+e.message; return null; }
+}
+
+/* ====================== ESTADO ====================== */
+const S = {
+  modo:null, texto:"", archivo:"",
+  tema:"", grado:2, area:"lengua", herramienta:"", bancoId:"",
+  soloTranscribir:false,
+  perfilId:null, nivel:"signif", condiciones:[], canal:"Visual", sourceImages:[],
+  actividades:[{tipo:"abierta",cant:3},{tipo:"multiple",cant:3},{tipo:"unir",cant:1}],
+  cognitivo:"simple", rutas:true,
+  instrucciones:"", tamano:"mediana", interlineado:"normal", colorEnf:"azul",
+  pictos:true, notaDocente:true, claseCompleta:false,
+  paso:0, doc:null, perfiles:[], editandoPerfil:null
+};
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const byId = (arr,id) => arr.find(x=>x.id===id);
+
+/* ====================== AUTENTICACIÓN ======================
+   Solo estas dos cuentas pueden usar la app. Esto es la verificación
+   "de cortesía" del lado del cliente (para mostrar el mensaje correcto
+   rápido); la que realmente importa es la misma lista del lado del
+   servidor, que no se puede evitar inspeccionando el código. */
+const PERMITIDOS = ["juliomonti91@gmail.com","luciadvalverde14@gmail.com"];
+
+/* TODO: reemplazar por la configuración real del proyecto — está en
+   Firebase Console → ⚙️ Configuración del proyecto → tus apps → app web.
+   No es un dato secreto, es público por diseño. */
+const FIREBASE_CONFIG = {
+  apiKey: "PEGAR_ACA",
+  authDomain: "rayuela-app-279da.firebaseapp.com",
+  projectId: "rayuela-app-279da",
+  storageBucket: "rayuela-app-279da.appspot.com",
+  messagingSenderId: "PEGAR_ACA",
+  appId: "PEGAR_ACA"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+async function tokenActual(){
+  const u = auth.currentUser;
+  if(!u) throw new Error("No hay sesión iniciada");
+  return await u.getIdToken();
+}
+function iniciarSesion(){
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(e=>{ const m=$("loginError"); if(m) m.textContent = "No se pudo iniciar sesión: "+e.message; });
+}
+function cerrarSesion(){ auth.signOut(); }
+
+function renderLogin(motivo){
+  $("navPerfiles").classList.add("hidden"); $("navSalir").classList.add("hidden");
+  $("usuarioActual").textContent = "";
+  $("scLogin").innerHTML = `
+  <div class="card" style="max-width:420px;margin:60px auto;text-align:center">
+    <div style="margin-bottom:10px">${tiza(60)}</div>
+    <h2>Entrá a Rayuela</h2>
+    <p class="hint" style="margin:8px 0 18px">Contenido que saca barreras — acceso solo para docentes autorizadas.</p>
+    ${motivo?'<p class="note warn" style="text-align:left">'+esc(motivo)+'</p>':''}
+    <button class="btn" style="width:100%;justify-content:center" onclick="iniciarSesion()">Iniciar sesión con Google</button>
+    <p id="loginError" class="hint" style="color:#C4483A;margin-top:10px"></p>
+  </div>`;
+}
+auth.onAuthStateChanged(async (user)=>{
+  ["scHome","scWizard","scLoad","scDoc","scPerfiles"].forEach(id=>$(id).classList.add("hidden"));
+  if(!user){ renderLogin(); go("scLogin"); return; }
+  const email = (user.email||"").toLowerCase();
+  if(!user.emailVerified || !PERMITIDOS.includes(email)){
+    renderLogin("La cuenta "+email+" no está autorizada a usar Rayuela. Si es un error, avisale a quien administra la app.");
+    go("scLogin");
+    return;
+  }
+  $("navPerfiles").classList.remove("hidden"); $("navSalir").classList.remove("hidden");
+  $("usuarioActual").textContent = email;
+  await cargarPerfiles();
+  renderHome(); go("scHome");
+});
+$("navSalir").onclick = cerrarSesion;
+
+/* ====================== GUARDADO DE PERFILES ====================== */
+let memoria = [];
+async function cargarPerfiles(){
+  try{
+    const uid = auth.currentUser.uid;
+    const snap = await db.collection("perfiles").doc(uid).get();
+    S.perfiles = snap.exists ? (snap.data().lista||[]) : [];
+  }catch(e){ S.perfiles = memoria; }
+}
+async function guardarPerfiles(){
+  memoria = S.perfiles;
+  try{
+    const uid = auth.currentUser.uid;
+    await db.collection("perfiles").doc(uid).set({lista:S.perfiles, actualizado:new Date().toISOString()});
+  }
+  catch(e){ /* queda solo en memoria durante esta sesión */ }
+}
+
+/* ====================== NAVEGACIÓN ====================== */
+function go(pantalla){
+  ["scLogin","scHome","scWizard","scLoad","scDoc","scPerfiles"].forEach(x=>$(x).classList.add("hidden"));
+  $(pantalla).classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"instant"});
+}
+$("brandHome").onclick = ()=>{ renderHome(); go("scHome"); };
+$("brandHome").onkeydown = e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();$("brandHome").click();} };
+$("navPerfiles").onclick = ()=>{ renderPerfiles(); go("scPerfiles"); };
+
+/* ====================== TIZA ====================== */
+function tiza(size=54, color="#F6A9C1", gesto="feliz"){
+  const boca = gesto==="pensativa" ? '<path d="M20 40c3-2 8-2 11 0" fill="none" stroke="#2E2A45" stroke-width="2.2" stroke-linecap="round"/>'
+    : '<path d="M20 38c3 4 8 4 11 0" fill="none" stroke="#2E2A45" stroke-width="2.2" stroke-linecap="round"/>';
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 50 62" aria-hidden="true">'+
+    '<rect x="10" y="10" width="31" height="48" rx="9" fill="'+color+'" stroke="#2E2A45" stroke-width="2.4"/>'+
+    '<path d="M14 10l11-8 11 8" fill="#FFF9F0" stroke="#2E2A45" stroke-width="2.4" stroke-linejoin="round"/>'+
+    '<circle cx="20" cy="30" r="2.6" fill="#2E2A45"/><circle cx="31" cy="30" r="2.6" fill="#2E2A45"/>'+ boca +
+    '</svg>';
+}
+
+/* ====================== INICIO ====================== */
+function renderHome(){
+  $("scHome").innerHTML = `
+  <div class="between" style="margin-bottom:22px">
+    <div>
+      <h1>¿Qué vas a preparar hoy?</h1>
+      <p class="hint" style="margin-top:6px">Todo lo que generes sigue el método del manual de primaria inclusiva y las reglas de accesibilidad de Rayuela.</p>
+    </div>
+    <div class="hop">${tiza(60)}</div>
+  </div>
+  <div class="grid2">
+    <button class="opt" style="flex-direction:column;align-items:flex-start;gap:8px" onclick="empezar('adaptar')">
+      <span class="tag" style="background:#FBEAF0;color:#B03A63">Tengo el material</span>
+      <b style="font-size:20px;font-family:var(--display)">Adaptar contenido</b>
+      <span>Pegás o subís un texto que ya usás y lo convertimos en una versión accesible, con o sin actividades.</span>
+    </button>
+    <button class="opt" style="flex-direction:column;align-items:flex-start;gap:8px" onclick="empezar('crear')">
+      <span class="tag" style="background:#E9F6F1;color:#2E8A6B">Empiezo de cero</span>
+      <b style="font-size:20px;font-family:var(--display)">Crear contenido nuevo</b>
+      <span>Elegís un tema y una herramienta creativa, o partís de una de las ${BANCO.length} actividades del cuadernillo.</span>
+    </button>
+  </div>
+  <div class="card" style="margin-top:22px">
+    <div class="between">
+      <div><h3>Perfiles guardados</h3><p class="hint" style="margin:4px 0 0">Cargá una vez a cada chico y reutilizalo en cada material.</p></div>
+      <button class="btn ghost" onclick="nuevoPerfil()">Agregar alumno</button>
+    </div>
+    <div id="homePerfiles" style="margin-top:14px"></div>
+  </div>`;
+  pintarPerfilesHome();
+}
+function pintarPerfilesHome(){
+  const c = $("homePerfiles"); if(!c) return;
+  if(!S.perfiles.length){ c.innerHTML = '<p class="hint" style="margin:0">Todavía no hay perfiles. Podés trabajar igual con los niveles estándar.</p>'; return; }
+  c.innerHTML = '<div class="chips">'+S.perfiles.map(p=>
+    '<span class="chip sm" style="cursor:default">'+esc(p.nombre)+' · '+p.grado+'.º</span>').join("")+'</div>';
+}
+function empezar(modo){
+  S.modo = modo; S.paso = 0;
+  renderWizard(); go("scWizard");
+}
+
+/* ====================== WIZARD ====================== */
+function casilleros(){
+  return '<div class="casilleros" role="img" aria-label="Paso '+(S.paso+1)+' de 5: '+PASOS[S.paso]+'">'+
+    PASOS.map((p,i)=>{
+      const cls = i<S.paso ? "cas done" : (i===S.paso ? "cas now" : "cas");
+      const tz = i===S.paso ? '<span class="tz">'+tiza(26)+'</span>' : '';
+      return '<div class="'+cls+'">'+tz+(i<S.paso?'✓<br>':'')+esc(p)+'</div>';
+    }).join("")+'</div>';
+}
+function renderWizard(){
+  const pasos = [stepFuente, stepAlumno, stepActividades, stepFormato, stepRevisar];
+  const ultimo = S.paso===4;
+  $("scWizard").innerHTML = casilleros() + '<div class="card">'+pasos[S.paso]()+'</div>'+
+    '<div class="stepnav">'+
+      '<button class="btn quiet" onclick="atras()">'+(S.paso===0?"Volver al inicio":"Paso anterior")+'</button>'+
+      (ultimo ? '<button class="btn ok" onclick="generar()">Generar el material</button>'
+              : '<button class="btn" id="btnNext" onclick="siguiente()">Siguiente paso</button>')+
+    '</div>';
+  validar();
+}
+function atras(){
+  if(S.paso===0){ renderHome(); go("scHome"); return; }
+  S.paso--; renderWizard();
+}
+function siguiente(){ if(S.paso<4){ S.paso++; renderWizard(); } }
+function validar(){
+  const b = $("btnNext"); if(!b) return;
+  let ok = true;
+  if(S.paso===0) ok = S.modo==="adaptar" ? S.texto.trim().length>30 : (S.tema.trim().length>2 || S.bancoId);
+  if(S.paso===2) ok = S.soloTranscribir || S.actividades.length>0;
+  b.disabled = !ok;
+}
+function set(campo,valor){ S[campo]=valor; renderWizard(); }
+function setQuiet(campo,valor){ S[campo]=valor; validar(); }
+
+/* ---------- Paso 1: fuente ---------- */
+function stepFuente(){
+  const gradoChips = [1,2,3].map(g=>'<button class="chip" aria-pressed="'+(S.grado===g)+'" onclick="set(\'grado\','+g+')">'+g+'.º grado</button>').join("");
+  const areaSel = '<select id="ar" onchange="setQuiet(\'area\',this.value)">'+AREAS.map(a=>'<option value="'+a.id+'"'+(S.area===a.id?" selected":"")+'>'+esc(a.nom)+'</option>').join("")+'</select>';
+  if(S.modo==="adaptar"){
+    const a = byId(AREAS,S.area);
+    return `<h2>¿Qué material vas a adaptar?</h2>
+    <p class="hint">Pegá el texto tal como está. Si es una fotocopia, podés escanearla y pegar el texto, o subir un archivo .txt.</p>
+    <label for="txtFuente">Texto original</label>
+    <textarea id="txtFuente" style="min-height:190px" placeholder="Pegá acá el cuento, la consigna o el texto de estudio..."
+      oninput="setQuiet('texto',this.value);document.getElementById('cnt').textContent=this.value.length">${esc(S.texto)}</textarea>
+    <p class="hint" style="margin-top:6px"><span id="cnt">${S.texto.length}</span> caracteres · mínimo 30 para poder adaptar</p>
+    <div class="row" style="margin:10px 0 6px">
+      <label for="fileIn" class="btn ghost" style="margin:0">Subir archivo</label>
+      <input id="fileIn" type="file" accept=".txt,.docx,.pdf,image/*" class="sr" onchange="importarArchivo(this)">
+      <span class="hint" style="margin:0">Word, PDF, foto o texto</span>
+    </div>
+    <p class="hint" id="estadoImport" style="margin:0 0 10px">${S.archivo?"Cargado: "+esc(S.archivo):"Si subís una foto de la fotocopia o un PDF escaneado, se transcribe automáticamente."}</p>
+    ${galeriaFuente()}
+    <div class="grid2" style="margin-top:8px">
+      <div><label>Grado</label><div class="chips">${gradoChips}</div></div>
+      <div><label for="ar">Área curricular</label>${areaSel}</div>
+    </div>
+    <div class="note info" style="margin-top:16px"><b>Lo innegociable en ${esc(a.nom)}:</b> ${esc(a.inneg)}<br>
+    <b>Lo negociable:</b> ${esc(a.negoc)}<br>Esto se le pasa a la IA para que simplifique el formato sin bajar el objetivo.</div>`;
+  }
+  const herr = HERRAMIENTAS.map(h=>'<button class="chip sm" aria-pressed="'+(S.herramienta===h.id)+'" onclick="set(\'herramienta\',\''+h.id+'\')">'+esc(h.aula)+'</button>').join("");
+  const hSel = byId(HERRAMIENTAS,S.herramienta);
+  const banco = BANCO.filter(b=>b.g===S.grado);
+  const bancoHtml = banco.map(b=>{
+    const on = S.bancoId===b.id;
+    return '<button class="opt" aria-pressed="'+on+'" onclick="elegirBanco(\''+b.id+'\')"><span class="tick">✓</span>'+
+      '<span><b>'+esc(b.tit)+'</b><span>'+esc(b.obj)+'</span></span></button>';
+  }).join("");
+  return `<h2>¿Sobre qué tema querés crear?</h2>
+  <p class="hint">Podés escribir el tema y elegir una herramienta creativa, o partir de una actividad del cuadernillo.</p>
+  <div class="grid2" style="margin-bottom:18px">
+    <div><label>Grado</label><div class="chips">${gradoChips}</div></div>
+    <div><label for="ar">Área curricular</label>${areaSel}</div>
+  </div>
+  <label for="tema">Tema</label>
+  <input id="tema" type="text" placeholder="Los seres vivos del monte catamarqueño" value="${esc(S.tema)}"
+    oninput="setQuiet('tema',this.value)">
+  <div style="margin-top:18px"><label>Herramienta creativa</label>
+  <p class="hint">La restricción es la rampa: cuanto más específica la consigna creativa, más chicos pueden entrar.</p>
+  <div class="chips">${herr}</div>
+  ${hSel?'<div class="note" style="margin-top:12px"><b>'+esc(hSel.nom)+'</b> · '+esc(hSel.desc)+'</div>':''}</div>
+  <div style="margin-top:22px"><label>O partí de una actividad del cuadernillo (${S.grado}.º grado)</label>
+  <div class="pick" style="margin-top:8px">${bancoHtml}</div>
+  ${S.bancoId?'<button class="btn quiet" style="margin-top:10px" onclick="elegirBanco(\'\')">Quitar la actividad elegida</button>':''}</div>`;
+}
+/* ====================== IMPORTAR MATERIAL ======================
+   Texto, Word, PDF o foto. Los escaneos y las imágenes se transcriben
+   con la misma IA, leyendo la hoja como la leería una persona. */
+function estadoImport(t){ const e=$("estadoImport"); if(e) e.textContent=t; }
+function galeriaFuente(){
+  if(!S.sourceImages || !S.sourceImages.length) return "";
+  return '<div class="row" style="margin:0 0 14px;flex-wrap:wrap">'+
+    S.sourceImages.map(im=>'<div style="width:90px"><img src="'+esc(im.data)+
+      '" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--borde)" alt="'+esc(im.title||"")+'">'+
+      '<p class="hint" style="margin:2px 0 0;font-size:11px;text-align:center">'+esc(im.title||"")+'</p></div>').join("")+
+    '</div>';
+}
+function leerComoDataURL(f){
+  return new Promise((ok,fail)=>{ const r=new FileReader();
+    r.onload=()=>ok(String(r.result||"")); r.onerror=()=>fail(new Error("No se pudo leer el archivo")); r.readAsDataURL(f); });
+}
+function cargarScript(url, chequeo){
+  if(chequeo()) return Promise.resolve();
+  return new Promise((ok,fail)=>{
+    const sc=document.createElement("script"); sc.src=url;
+    sc.onload=()=> chequeo()?ok():fail(new Error("no cargó"));
+    sc.onerror=()=>fail(new Error("no cargó"));
+    document.head.appendChild(sc);
+    setTimeout(()=>{ chequeo()?ok():fail(new Error("no cargó")); },12000);
+  });
+}
+/* Un .docx es un zip: leemos word/document.xml y sacamos el texto de los párrafos. */
+async function leerDocx(f){
+  const JSZ = await cargarJSZip();
+  const zip = await JSZ.loadAsync(f);
+  const arch = zip.file("word/document.xml");
+  if(!arch) throw new Error("El archivo de Word no tiene el formato esperado.");
+  const xml = await arch.async("string");
+  const texto = xml.replace(/<w:p[ >]/g,"\n<w:p ").replace(/<w:tab[^>]*>/g," ")
+    .replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">")
+    .replace(/&quot;/g,'"').replace(/&apos;/g,"'")
+    .split("\n").map(l=>l.trim()).filter(Boolean).join("\n").slice(0,20000);
+  /* Un .docx es un zip: las imágenes pegadas por la docente viven sueltas en
+     word/media/. Antes se perdían por completo — ahora se conservan. */
+  const sourceImages = [];
+  const nombresMedia = Object.keys(zip.files).filter(n=>/^word\/media\//i.test(n) && /\.(png|jpe?g|gif|bmp|webp)$/i.test(n));
+  for(const nombre of nombresMedia.slice(0,12)){
+    try{
+      const ext = (nombre.split(".").pop()||"png").toLowerCase().replace("jpg","jpeg");
+      const b64 = await zip.file(nombre).async("base64");
+      sourceImages.push({data:"data:image/"+ext+";base64,"+b64, title:nombre.split("/").pop()});
+    }catch(e){}
+  }
+  return {texto, sourceImages};
+}
+/* Transcribe imágenes usando la visión del modelo. */
+async function transcribirImagenes(dataUrls){
+  let salida = [];
+  for(let i=0;i<dataUrls.length;i++){
+    const du = dataUrls[i];
+    const m = /^data:([^;]+);base64,(.*)$/.exec(du);
+    if(!m) continue;
+    estadoImport("Transcribiendo la página "+(i+1)+" de "+dataUrls.length+"...");
+    const tokenT = await tokenActual();
+    const res = await fetch(TXT_FN_URL,{
+      method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+tokenT},
+      body: JSON.stringify({ content:[
+          {type:"image", source:{type:"base64", media_type:m[1], data:m[2]}},
+          {type:"text", text:"Transcribí todo el texto de esta hoja de trabajo escolar, respetando el orden y las consignas numeradas. Si hay dibujos importantes, describilos entre corchetes en una línea, por ejemplo [dibujo de una manzana]. No agregues comentarios propios."}
+        ] })
+    });
+    let data = null;
+    try{ data = await res.json(); }catch(e){}
+    if(!res.ok || !data || !data.ok) throw new Error((data&&data.error)||"No se pudo transcribir la imagen.");
+    salida.push((data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n"));
+  }
+  return salida.join("\n\n");
+}
+async function leerPdf(f){
+  const base = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  await cargarScript(base+"pdf.min.js", ()=>window.pdfjsLib);
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc = base+"pdf.worker.min.js";
+  const buf = await f.arrayBuffer();
+  const pdf = await window.pdfjsLib.getDocument({data:buf}).promise;
+  const paginas = Math.min(pdf.numPages, 10);
+  let texto = "";
+  for(let i=1;i<=paginas;i++){
+    estadoImport("Leyendo la página "+i+" de "+paginas+"...");
+    const pg = await pdf.getPage(i);
+    const tc = await pg.getTextContent();
+    texto += tc.items.map(x=>x.str).join(" ")+"\n\n";
+  }
+  /* Siempre se conserva también la imagen de cada página (hasta 6): un PDF
+     con dibujos y diagramas antes se reducía solo a su capa de texto y esos
+     dibujos se perdían aunque el PDF no fuera un escaneo. */
+  const sourceImages = [];
+  const paginasImg = Math.min(pdf.numPages, 6);
+  for(let i=1;i<=paginasImg;i++){
+    estadoImport("Guardando la imagen de la página "+i+" de "+paginasImg+"...");
+    const pg = await pdf.getPage(i);
+    const vp = pg.getViewport({scale:1.5});
+    const cv = document.createElement("canvas");
+    cv.width = vp.width; cv.height = vp.height;
+    await pg.render({canvasContext:cv.getContext("2d"), viewport:vp}).promise;
+    sourceImages.push({data:cv.toDataURL("image/jpeg",0.85), title:"Página "+i});
+  }
+  if(texto.replace(/\s/g,"").length > 200) return {texto:texto.slice(0,20000), sourceImages};
+  /* PDF escaneado: no tiene capa de texto, lo pasamos por visión */
+  estadoImport("El PDF es una imagen escaneada: se va a transcribir...");
+  const transcripcion = await transcribirImagenes(sourceImages.map(x=>x.data));
+  return {texto:transcripcion, sourceImages};
+}
+async function importarArchivo(inp){
+  const f = inp.files && inp.files[0]; if(!f) return;
+  const nom = f.name.toLowerCase();
+  if(f.size > 25*1024*1024){ estadoImport("El archivo es muy grande (máximo 25 MB)."); return; }
+  estadoImport("Leyendo "+f.name+"...");
+  try{
+    let texto = "", sourceImages = [];
+    if(/\.txt$/.test(nom) || f.type==="text/plain") texto = (await f.text()).slice(0,20000);
+    else if(/\.docx$/.test(nom)){ const r = await leerDocx(f); texto=r.texto; sourceImages=r.sourceImages; }
+    else if(/\.pdf$/.test(nom)){ const r = await leerPdf(f); texto=r.texto; sourceImages=r.sourceImages; }
+    else if(/^image\//.test(f.type)){ const du = await leerComoDataURL(f); texto = await transcribirImagenes([du]); sourceImages=[{data:du,title:f.name}]; }
+    else if(/\.doc$/.test(nom)) throw new Error("Los .doc viejos no se pueden leer. Abrilo en Word y guardalo como .docx.");
+    else throw new Error("Formato no reconocido. Probá con Word, PDF, imagen o texto.");
+    if(!texto || texto.replace(/\s/g,"").length < 20) throw new Error("No se encontró texto en el archivo. Si es una foto, probá con una más nítida.");
+    S.texto = texto; S.archivo = f.name; S.sourceImages = sourceImages; renderWizard();
+    estadoImport("Cargado: "+f.name+" · "+texto.length+" caracteres"+
+      (sourceImages.length?" · "+sourceImages.length+" imagen(es) conservada(s)":"")+". Revisá antes de seguir.");
+  }catch(e){
+    estadoImport("No se pudo importar: "+e.message);
+  }
+}
+function elegirBanco(id){
+  S.bancoId = (S.bancoId===id?"":id);
+  const b = byId(BANCO,S.bancoId);
+  if(b){ S.herramienta=b.her; S.area=b.area; if(!S.tema.trim()) S.tema=b.tit; }
+  renderWizard();
+}
+
+/* ---------- Paso 2: alumno ---------- */
+function stepAlumno(){
+  const niveles = NIVELES.map(n=>{
+    const on = S.nivel===n.id && !S.perfilId;
+    return '<button class="opt" aria-pressed="'+on+'" onclick="set(\'nivel\',\''+n.id+'\')"><span class="tick">✓</span>'+
+      '<span><b>'+esc(n.nom)+' <span class="pill">'+esc(n.sub)+'</span></b><span>'+esc(n.desc)+'</span></span></button>';
+  }).join("");
+  const conds = CONDICIONES.map(c=>'<button class="chip sm" aria-pressed="'+S.condiciones.includes(c.id)+'" onclick="toggleCond(\''+c.id+'\')">'+esc(c.nom)+'</button>').join("");
+  const canales = CANALES.map(c=>'<button class="chip sm" aria-pressed="'+(S.canal===c)+'" onclick="set(\'canal\',\''+c+'\')">'+c+'</button>').join("");
+  const perfiles = S.perfiles.length
+    ? S.perfiles.map(p=>'<button class="opt" aria-pressed="'+(S.perfilId===p.id)+'" onclick="usarPerfil(\''+p.id+'\')"><span class="tick">✓</span>'+
+        '<span><b>'+esc(p.nombre)+' · '+p.grado+'.º grado</b><span>Comprende mejor por: '+esc(p.canal)+
+        (p.condiciones.length?' · '+p.condiciones.map(id=>esc((byId(CONDICIONES,id)||{}).nom||"")).join(", "):"")+'</span></span></button>').join("")
+    : '<p class="hint">Todavía no cargaste alumnos. Podés seguir con los niveles estándar y cargarlos después.</p>';
+  const ajustes = S.condiciones.map(id=>{const c=byId(CONDICIONES,id); return '<li><b>'+esc(c.nom)+':</b> '+esc(c.ajuste)+'</li>';}).join("");
+  return `<h2>¿Para quién es este material?</h2>
+  <div class="note warn" style="margin-bottom:18px">
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:0">
+      <input type="checkbox" style="width:22px;height:22px" ${S.soloTranscribir?"checked":""} onchange="set('soloTranscribir',this.checked)">
+      Solo transcribir, sin adaptar
+    </label>
+    <p class="hint" style="margin:6px 0 0">Usalo cuando el material ya está bien y solo necesitás digitalizarlo con formato accesible.</p>
+  </div>
+  <h3>Alumnos guardados</h3><div class="pick" style="margin:10px 0 8px">${perfiles}</div>
+  ${S.perfilId?'<button class="btn quiet" onclick="usarPerfil(\'\')">Usar un nivel estándar en su lugar</button>':''}
+  <div style="margin-top:26px"><h3>Nivel de adecuación</h3>
+  <p class="hint">Elegí según cuánto se puede simplificar sin perder el objetivo. No elijas el más simple por las dudas: eso es infantilizar, no adaptar.</p>
+  <div class="pick">${niveles}</div></div>
+  <div style="margin-top:26px"><label>Condiciones a tener en cuenta</label>
+  <p class="hint">Cada una suma ajustes concretos ya escritos en el manual. Podés elegir varias: la comorbilidad es la norma, no la excepción.</p>
+  <div class="chips">${conds}</div>
+  ${ajustes?'<div class="note info" style="margin-top:14px"><b>Ajustes que se van a aplicar</b><ul style="margin:8px 0 0;padding-left:20px">'+ajustes+'</ul></div>':''}</div>
+  <div style="margin-top:24px"><label>Comprende mejor por</label><div class="chips">${canales}</div></div>`;
+}
+function toggleCond(id){
+  S.condiciones = S.condiciones.includes(id) ? S.condiciones.filter(x=>x!==id) : S.condiciones.concat([id]);
+  renderWizard();
+}
+function usarPerfil(id){
+  S.perfilId = id||null;
+  const p = S.perfiles.find(x=>x.id===id);
+  if(p){ S.condiciones = p.condiciones.slice(); S.canal = p.canal; S.grado = p.grado; }
+  renderWizard();
+}
+
+/* ---------- Paso 3: actividades ---------- */
+function stepActividades(){
+  if(S.soloTranscribir){
+    return `<h2>Actividades</h2>
+    <div class="note">Elegiste solo transcribir, así que este paso queda en pausa. El material va a salir con formato accesible y sin ejercicios.
+    <br><br><button class="btn ghost" onclick="set('soloTranscribir',false)">Quiero agregar actividades</button></div>`;
+  }
+  const lista = S.actividades.map((a,i)=>{
+    const t = byId(TIPOS_ACT,a.tipo);
+    return '<div class="act"><b>'+esc(t.nom)+'<br><span class="hint" style="margin:0">'+esc(t.desc)+'</span></b>'+
+      '<div class="count"><button onclick="incAct('+i+',-1)" aria-label="Menos">−</button><span>'+a.cant+'</span>'+
+      '<button onclick="incAct('+i+',1)" aria-label="Más">+</button></div>'+
+      '<button class="iconbtn" onclick="moverAct('+i+',-1)" aria-label="Subir">↑</button>'+
+      '<button class="iconbtn" onclick="moverAct('+i+',1)" aria-label="Bajar">↓</button>'+
+      '<button class="iconbtn" onclick="quitarAct('+i+')" aria-label="Quitar">✕</button></div>';
+  }).join("");
+  const disp = TIPOS_ACT.filter(t=>!S.actividades.some(a=>a.tipo===t.id) && (!t.g || t.g.includes(S.grado)))
+    .map(t=>'<button class="chip sm" onclick="agregarAct(\''+t.id+'\')">+ '+esc(t.nom)+'</button>').join("");
+  const cog = COGNITIVO.map(c=>'<button class="opt" aria-pressed="'+(S.cognitivo===c.id)+'" onclick="set(\'cognitivo\',\''+c.id+'\')">'+
+    '<span class="tick">✓</span><span><b>'+esc(c.nom)+'</b><span>'+esc(c.sub)+'</span></span></button>').join("");
+  const total = S.actividades.reduce((s,a)=>s+a.cant,0);
+  return `<h2>¿Qué van a resolver?</h2>
+  <p class="hint">El orden de la lista es el orden en que aparecen en el documento. Variá los tipos: no uses solo multiple choice.</p>
+  ${lista||'<p class="hint">Todavía no agregaste ningún tipo de actividad.</p>'}
+  <p class="hint" style="margin-top:4px"><b>${total}</b> ejercicios en total</p>
+  ${disp?'<div style="margin-top:14px"><label>Agregar tipo de actividad</label><div class="chips">'+disp+'</div></div>':''}
+  <div style="margin-top:26px"><h3>Nivel cognitivo</h3>
+  <p class="hint">Es independiente del nivel de adecuación. Un texto muy adaptado puede igual tener preguntas de nivel medio: que ese chico también piense, no solo que responda.</p>
+  <div class="pick">${cog}</div></div>
+  <div class="note" style="margin-top:22px">
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:0">
+      <input type="checkbox" style="width:22px;height:22px" ${S.rutas?"checked":""} onchange="set('rutas',this.checked)">
+      Generar las tres rutas A, B y C
+    </label>
+    <p class="hint" style="margin:6px 0 0">La misma tarea y el mismo objetivo en tres niveles de exigencia, para que nadie haga otra cosa ni quede mirando.</p>
+  </div>`;
+}
+function agregarAct(tipo){ S.actividades.push({tipo,cant:2}); renderWizard(); }
+function incAct(i,d){ S.actividades[i].cant = Math.max(1,Math.min(10,S.actividades[i].cant+d)); renderWizard(); }
+function moverAct(i,d){
+  const j=i+d; if(j<0||j>=S.actividades.length) return;
+  const a=S.actividades; [a[i],a[j]]=[a[j],a[i]]; renderWizard();
+}
+function quitarAct(i){ S.actividades.splice(i,1); renderWizard(); }
+
+/* ---------- Paso 4: formato ---------- */
+function stepFormato(){
+  const sw = COLORES_ENFASIS.map(c=>'<button class="sw" style="background:'+c.hex+'" aria-pressed="'+(S.colorEnf===c.id)+'" aria-label="'+esc(c.nom)+'" onclick="set(\'colorEnf\',\''+c.id+'\')"></button>').join("");
+  const sel = (campo,ops) => '<select onchange="setQuiet(\''+campo+'\',this.value)">'+ops.map(o=>'<option value="'+o[0]+'"'+(S[campo]===o[0]?" selected":"")+'>'+o[1]+'</option>').join("")+'</select>';
+  return `<h2>¿Cómo se tiene que ver?</h2>
+  <label for="ins">Instrucciones adicionales</label>
+  <p class="hint">Poné acá lo que la app no puede adivinar: por ejemplo, mantener los nombres propios sin cambios, o usar ejemplos de fútbol porque es su interés.</p>
+  <textarea id="ins" maxlength="500" placeholder="Evitar preguntas con doble negación. Dejar más espacio para escribir."
+    oninput="setQuiet('instrucciones',this.value);document.getElementById('cins').textContent=this.value.length">${esc(S.instrucciones)}</textarea>
+  <p class="hint"><span id="cins">${S.instrucciones.length}</span> de 500 caracteres</p>
+  <div class="grid2" style="margin-top:18px">
+    <div><label>Tamaño de letra</label>${sel("tamano",[["mediana","Mediana (16 pt)"],["grande","Grande (19 pt)"],["muy","Macrotipo (23 pt)"]])}</div>
+    <div><label>Interlineado</label>${sel("interlineado",[["normal","Normal (1.5)"],["amplio","Amplio (1.9)"]])}</div>
+  </div>
+  <div style="margin-top:20px"><label>Color de énfasis</label>
+  <p class="hint">Se usa en títulos y palabras clave. Son los colores de la paleta funcional, verificados para contraste accesible.</p>
+  <div class="swatches">${sw}</div></div>
+  <div style="margin-top:22px" class="note">
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:0">
+      <input type="checkbox" style="width:22px;height:22px" ${S.pictos?"checked":""} onchange="set('pictos',this.checked)">
+      Buscar pictogramas para el vocabulario clave
+    </label>
+    <p class="hint" style="margin:6px 0 0">Toma los pictogramas gratuitos de ARASAAC. Si no hay conexión, el material sale igual con los dibujos propios de Rayuela.</p>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:14px 0 0">
+      <input type="checkbox" style="width:22px;height:22px" ${S.claseCompleta?"checked":""} onchange="set('claseCompleta',this.checked)">
+      Modo clase completa
+    </label>
+    <p class="hint" style="margin:6px 0 0">Cada actividad sale como una ficha de clase, con Fecha, Contenido, Tema, Motivación, Desarrollo, Cierre y Observaciones.</p>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:700;margin:14px 0 0">
+      <input type="checkbox" style="width:22px;height:22px" ${S.notaDocente?"checked":""} onchange="set('notaDocente',this.checked)">
+      Agregar la hoja para la docente
+    </label>
+    <p class="hint" style="margin:6px 0 0">Objetivo innegociable, qué acepto como evidencia y qué evidencia alternativa vale.</p>
+  </div>`;
+}
+
+/* ---------- Paso 5: revisar ---------- */
+function fila(t,sub){ return '<div class="sumrow"><span class="ck">✓</span><div><b>'+t+'</b><small>'+sub+'</small></div></div>'; }
+function stepRevisar(){
+  const p = S.perfiles.find(x=>x.id===S.perfilId);
+  const n = byId(NIVELES,S.nivel);
+  const a = byId(AREAS,S.area);
+  const total = S.actividades.reduce((s,x)=>s+x.cant,0);
+  const detalle = S.actividades.map(x=>esc(byId(TIPOS_ACT,x.tipo).nom)+" x"+x.cant).join(" · ");
+  const fuente = S.modo==="adaptar"
+    ? fila("Material a adaptar", (S.archivo?esc(S.archivo)+" · ":"")+S.texto.trim().split(/\s+/).length+" palabras · "+esc(a.nom)+" · "+S.grado+".º grado")
+    : fila("Contenido nuevo", esc(S.tema||(byId(BANCO,S.bancoId)||{}).tit||"")+" · "+esc(a.nom)+" · "+S.grado+".º grado"+
+        (S.herramienta?" · "+esc(byId(HERRAMIENTAS,S.herramienta).nom):""));
+  return `<h2>Repasemos antes de generar</h2>
+  <p class="hint">Revisalo como un checklist real: que el nivel y la cantidad de ejercicios tengan sentido para el tiempo de clase que tenés.</p>
+  <div class="summary">
+    ${fuente}
+    ${fila("Destinatario", p ? esc(p.nombre)+" · perfil guardado · "+esc(n.nom) : "Nivel "+esc(n.nom)+
+      (S.condiciones.length?" · "+S.condiciones.map(id=>esc(byId(CONDICIONES,id).nom)).join(", "):""))}
+    ${fila(S.soloTranscribir?"Solo transcribir":"Actividades",
+      S.soloTranscribir ? "Sin ejercicios: texto accesible únicamente"
+        : total+" ejercicios · nivel "+esc(byId(COGNITIVO,S.cognitivo).nom)+(S.rutas?" · con rutas A, B y C":"")+"<br>"+detalle)}
+    ${fila("Formato", "Letra "+(S.tamano==="muy"?"macrotipo":S.tamano)+" · interlineado "+S.interlineado+" · énfasis "+esc(byId(COLORES_ENFASIS,S.colorEnf).nom)+
+      (S.pictos?" · con pictogramas":"")+(S.claseCompleta?" · modo clase completa":"")+(S.notaDocente?" · con hoja para la docente":""))}
+  </div>
+  <div class="note warn" style="margin-top:20px"><b>Después de generar, revisalo vos.</b> Ningún material hecho con IA para un chico con necesidades específicas debería llegar al aula sin lectura docente previa: chequeá que la exigencia no haya bajado de más y que el tono sea el de su edad real.</div>`;
+}
+
+/* ====================== PERFILES ====================== */
+function nuevoPerfil(){ S.editandoPerfil = {id:"p"+Date.now(),nombre:"",grado:S.grado,canal:"Visual",condiciones:[],desregula:"",ayuda:"",ajustes:""}; renderPerfiles(); go("scPerfiles"); }
+function editarPerfil(id){ S.editandoPerfil = JSON.parse(JSON.stringify(S.perfiles.find(p=>p.id===id))); renderPerfiles(); go("scPerfiles"); }
+function campoPerfil(k,v){ S.editandoPerfil[k]=v; }
+function condPerfil(id){
+  const p=S.editandoPerfil;
+  p.condiciones = p.condiciones.includes(id)?p.condiciones.filter(x=>x!==id):p.condiciones.concat([id]);
+  renderPerfiles();
+}
+async function guardarPerfil(){
+  const p = S.editandoPerfil;
+  if(!p.nombre.trim()){ alert("Escribí el nombre del alumno para poder guardarlo."); return; }
+  const i = S.perfiles.findIndex(x=>x.id===p.id);
+  if(i>=0) S.perfiles[i]=p; else S.perfiles.push(p);
+  await guardarPerfiles(); S.editandoPerfil=null; renderPerfiles();
+}
+async function borrarPerfil(id){
+  S.perfiles = S.perfiles.filter(p=>p.id!==id);
+  if(S.perfilId===id) S.perfilId=null;
+  await guardarPerfiles(); renderPerfiles();
+}
+function renderPerfiles(){
+  const p = S.editandoPerfil;
+  if(p){
+    const conds = CONDICIONES.map(c=>'<button class="chip sm" aria-pressed="'+p.condiciones.includes(c.id)+'" onclick="condPerfil(\''+c.id+'\')">'+esc(c.nom)+'</button>').join("");
+    const canales = CANALES.map(c=>'<button class="chip sm" aria-pressed="'+(p.canal===c)+'" onclick="campoPerfil(\'canal\',\''+c+'\');renderPerfiles()">'+c+'</button>').join("");
+    const grados = [1,2,3].map(g=>'<button class="chip sm" aria-pressed="'+(p.grado===g)+'" onclick="campoPerfil(\'grado\','+g+');renderPerfiles()">'+g+'.º</button>').join("");
+    $("scPerfiles").innerHTML = `<div class="card">
+      <h2>Ficha del alumno</h2>
+      <p class="hint">Cinco datos alcanzan para el 80% de las decisiones diarias. Conocé al chico, no solo el diagnóstico.</p>
+      <div class="grid2">
+        <div><label for="pn">Nombre</label><input id="pn" type="text" value="${esc(p.nombre)}" oninput="campoPerfil('nombre',this.value)"></div>
+        <div><label>Grado</label><div class="chips">${grados}</div></div>
+      </div>
+      <div style="margin-top:18px"><label>Comprende mejor por</label><div class="chips">${canales}</div></div>
+      <div style="margin-top:18px"><label>Condiciones a tener en cuenta</label>
+      <p class="hint">Opcional. Sirve para traer los ajustes ya escritos, nunca para definir al chico.</p>
+      <div class="chips">${conds}</div></div>
+      <div class="grid2" style="margin-top:18px">
+        <div><label for="pd">Lo desregula</label><textarea id="pd" style="min-height:90px" oninput="campoPerfil('desregula',this.value)">${esc(p.desregula)}</textarea></div>
+        <div><label for="pa">Lo que ayuda</label><textarea id="pa" style="min-height:90px" oninput="campoPerfil('ayuda',this.value)">${esc(p.ayuda)}</textarea></div>
+      </div>
+      <div style="margin-top:18px"><label for="pj">Ajustes que ya sabemos que funcionan</label>
+      <textarea id="pj" style="min-height:90px" placeholder="Responde mejor oralmente. Necesita la consigna numerada." oninput="campoPerfil('ajustes',this.value)">${esc(p.ajustes)}</textarea></div>
+      <div class="stepnav"><button class="btn quiet" onclick="S.editandoPerfil=null;renderPerfiles()">Cancelar</button>
+      <button class="btn" onclick="guardarPerfil()">Guardar alumno</button></div></div>`;
+    return;
+  }
+  const lista = S.perfiles.length ? S.perfiles.map(x=>`<div class="perfilcard"><div class="between">
+      <div><b>${esc(x.nombre)}</b> · ${x.grado}.º grado<br>
+      <span class="hint">Comprende mejor por: ${esc(x.canal)}${x.condiciones.length?" · "+x.condiciones.map(id=>esc((byId(CONDICIONES,id)||{}).nom||"")).join(", "):""}</span></div>
+      <div class="row"><button class="btn quiet" onclick="editarPerfil('${x.id}')">Editar</button>
+      <button class="btn quiet" onclick="borrarPerfil('${x.id}')">Borrar</button></div></div></div>`).join("")
+    : '<p class="hint">Todavía no hay alumnos cargados.</p>';
+  $("scPerfiles").innerHTML = `<div class="between" style="margin-bottom:18px">
+      <div><h1>Perfiles de alumnos</h1><p class="hint" style="margin-top:6px">Se guardan solo en tu cuenta y solo vos los ves.</p></div>
+      <button class="btn" onclick="nuevoPerfil()">Agregar alumno</button></div>
+    <div class="card">${lista}</div>`;
+}
+
+/* ====================== GENERACIÓN ====================== */
+function reglasPedagogicas(){
+  const n = byId(NIVELES,S.nivel), a = byId(AREAS,S.area), c = byId(COGNITIVO,S.cognitivo);
+  const p = S.perfiles.find(x=>x.id===S.perfilId);
+  let r = [];
+  r.push("Sos un equipo de maestra de grado y maestra de apoyo a la inclusión de primaria argentina. Diseñás material para "+S.grado+".º grado, área "+a.nom+".");
+  r.push("MARCO: Resolución CFE 311/16 y Diseño Universal para el Aprendizaje. Adaptar es sacar barreras, nunca bajar la vara. Se ajusta la dificultad, no la dignidad.");
+  r.push("INNEGOCIABLE del área: "+a.inneg+" NEGOCIABLE: "+a.negoc);
+  if(S.soloTranscribir) r.push("MODO: solo transcribir. Conservá el contenido tal cual, solo mejorá el formato, la segmentación y la claridad tipográfica. No reformules ideas ni cambies el vocabulario.");
+  else r.push("NIVEL DE ADECUACIÓN ("+n.nom+"): "+n.regla);
+  r.push("NIVEL COGNITIVO DE LAS ACTIVIDADES ("+c.nom+"): "+c.regla+" Este eje es independiente de la adecuación del texto: aunque el texto esté muy simplificado, las preguntas mantienen este nivel de exigencia.");
+  if(p){
+    r.push("ALUMNO: "+p.nombre+", "+p.grado+".º grado. Comprende mejor por vía "+p.canal+".");
+    if(p.desregula) r.push("Lo desregula: "+p.desregula+".");
+    if(p.ayuda) r.push("Lo que lo ayuda: "+p.ayuda+".");
+    if(p.ajustes) r.push("Ajustes que ya funcionan: "+p.ajustes+".");
+  } else r.push("Vía de comprensión preferente: "+S.canal+".");
+  S.condiciones.forEach(id=>{ const x=byId(CONDICIONES,id); r.push("AJUSTE POR "+x.nom.toUpperCase()+": "+x.ajuste); });
+  r.push("REGLAS DE ESCRITURA: oraciones cortas, una idea por bloque, una consigna por línea, verbo de acción al principio ('Escribí', 'Marcá', 'Uní'). Vocabulario concreto. Nunca lenguaje figurado no explicado, ironía, doble negación ni condicionales encadenados. Español rioplatense con voseo. Nunca infantilices: respetá la edad cronológica aunque el nivel de lectura sea menor.");
+  r.push("NUNCA compares al chico con otros, ni uses lástima ni heroísmo. Nada de 'a pesar de su dificultad'.");
+  if(S.instrucciones.trim()) r.push("INDICACIONES DE LA DOCENTE (tienen prioridad): "+S.instrucciones.trim());
+  return r.join("\n");
+}
+function contenidoFuente(){
+  if(S.modo==="adaptar") return "TEXTO ORIGINAL A ADAPTAR:\n\n"+S.texto.trim().slice(0,9000);
+  const b = byId(BANCO,S.bancoId), h = byId(HERRAMIENTAS,S.herramienta);
+  let t = "CREAR CONTENIDO NUEVO sobre el tema: "+(S.tema||b&&b.tit||"")+".";
+  if(h) t += "\nHerramienta creativa que estructura la propuesta: "+h.nom+" ("+h.aula+"). "+h.desc;
+  if(b) t += "\nBasado en la actividad "+b.id+" del cuadernillo: "+b.tit+". Objetivo: "+b.obj+". Innegociable: "+b.inneg;
+  t += "\nLa creatividad necesita bordes: la consigna debe ser específica y con estructura, nunca abierta del tipo 'inventá algo'.";
+  return t;
+}
+async function llamar(sistema, usuario, imagenes){
+  const content = [];
+  (imagenes||[]).slice(0,4).forEach(du=>{
+    const m = /^data:([^;]+);base64,(.*)$/.exec(du||"");
+    if(m) content.push({type:"image", source:{type:"base64", media_type:m[1], data:m[2]}});
+  });
+  content.push({type:"text", text: sistema+"\n\n"+usuario});
+  /* Fuera de Claude no hay una cuenta "de fondo" pagando el texto: pasa por
+     nuestro propio backend, que tiene la clave de Anthropic guardada. */
+  const token = await tokenActual();
+  const res = await fetch(TXT_FN_URL,{
+    method:"POST", headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
+    body: JSON.stringify({content})
+  });
+  let data = null;
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok || !data || !data.ok) throw new Error((data&&data.error)||"La generación no respondió. Probá de nuevo en un momento.");
+  return (data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("\n");
+}
+function parseJSON(txt){
+  let t = String(txt||"").replace(/```json|```/g,"").trim();
+  const i = t.indexOf("{"); if(i>0) t = t.slice(i);
+  try{ return JSON.parse(t); }catch(e){}
+  const j = t.lastIndexOf("}");
+  if(j>0){ try{ return JSON.parse(t.slice(0,j+1)); }catch(e){} }
+  throw new Error("La respuesta llegó incompleta. Probá generar de nuevo con menos ejercicios.");
+}
+
+function pantallaCarga(){
+  go("scLoad");
+  $("scLoad").innerHTML = '<div class="card"><div class="loading"><div class="hop">'+tiza(78)+'</div>'+
+    '<h2 id="msgCarga">Leyendo el material con ojos de maestra...</h2>'+
+    '<p class="hint" style="max-width:44ch">Tiza va armando el material en varias pasadas cortas, para que ninguna se corte a la mitad.</p></div></div>';
+  return null;
+}
+/* Cada llamada al modelo dentro del artefacto devuelve como máximo 1000 tokens,
+   así que en vez de pedir todo el documento junto, lo pedimos en piezas chicas:
+   una para el texto, una para el vocabulario, una por cada tipo de actividad
+   y una para las rutas. Así ninguna respuesta corre riesgo de cortarse a la mitad. */
+async function llamarJSON(reglas, instruccion, formato, notas, imagenes){
+  const usuario = instruccion+"\n\nDevolvé SOLO un objeto JSON válido, sin texto antes ni después, con esta forma exacta:\n"+formato+"\n"+(notas||"");
+  try{ return parseJSON(await llamar(reglas, usuario, imagenes)); }
+  catch(e){
+    return parseJSON(await llamar(reglas, usuario+"\nMuy importante: sé breve, no te acerques al límite de longitud.", imagenes));
+  }
+}
+async function generarTexto(reglas){
+  const formato = '{"titulo":"","contenido":"el contenido curricular, ej: Numeración: el 7","objetivo":"un objetivo con verbo observable","innegociable":"lo que sí o sí tiene que aprender",'+
+    '"texto":[{"tipo":"subtitulo|parrafo","contenido":""}],'+
+    '"docente":{"evidencia":"qué acepto como prueba de que aprendió","alternativa":"qué evidencia alternativa vale para quien no puede producir la principal","tiempo":"duración estimada"}}';
+  /* Si el material original tiene imágenes conservadas (Word/PDF/foto), se las
+     mostramos de verdad al modelo — no solo la transcripción de texto. */
+  const imgs = (S.modo==="adaptar" && S.sourceImages && S.sourceImages.length) ? S.sourceImages.map(x=>x.data) : null;
+  return await llamarJSON(reglas, contenidoFuente(), formato,
+    "Máximo 4 bloques de texto, cada uno de no más de 3 líneas. Sin markdown dentro de los valores. Sé breve.", imgs);
+}
+async function generarVocabulario(reglas, resumen){
+  const formato = '{"vocabulario":[{"palabra":"","significado":"explicación en una oración corta","picto":"un sustantivo simple y concreto para buscar el pictograma"}]}';
+  const r = await llamarJSON(reglas, "CONTENIDO ADAPTADO:\n"+resumen, formato, "Máximo 3 palabras clave. Sin markdown.");
+  return r.vocabulario||[];
+}
+/* Cada plantilla visual necesita datos distintos: no alcanza con el enunciado,
+   hay que pedirle a la IA el ícono concreto a dibujar y las cantidades. */
+const LISTA_ICONOS = "manzana, pera, uva, banana, estrella, corazon, pelota, sol, luna, nube, casa, arbol, flor, pez, gato, pajaro, mariposa, auto, libro, lapiz, globo, taza, reloj, persona, cuadrado, circulo, triangulo";
+function formatoDe(tipo){
+  const ic = '"icono":"un sustantivo concreto de esta lista: '+LISTA_ICONOS+'"';
+  switch(plantillaDe(tipo)){
+    case "opcion-visual":
+      return '{"consigna":"","items":[{"enunciado":"","opciones":["",""],"iconos":["un sustantivo de la lista por cada opción",""]}]}';
+    case "unir-con-flechas":
+      return '{"consigna":"","items":[{"enunciado":"lo que va a la izquierda",'+ic+',"par":"lo que va a la derecha"}]}';
+    case "completar-con-apoyo":
+      return '{"consigna":"","banco":["palabra1","palabra2"],"items":[{"enunciado":"oración con un hueco marcado ___",'+ic+'}]}';
+    case "secuencia-para-ordenar":
+      return '{"consigna":"","items":[{"enunciado":"paso muy corto, máximo 5 palabras",'+ic+'}]}';
+    case "conteo-clipart":
+      return '{"consigna":"","items":[{'+ic+',"cantidad":5}]}';
+    case "trazado-grande":
+      return '{"consigna":"","items":[{"letra":"la letra o número a trazar, un solo carácter",'+ic+',"cantidad":4}]}';
+    case "clasificar-tabla":
+      return '{"consigna":"","columnaA":"criterio de la izquierda","columnaB":"criterio de la derecha","items":[{"enunciado":"palabra corta",'+ic+'}]}';
+    case "operacion-con-conteo":
+      return '{"consigna":"","items":[{'+ic+',"cantidad":3,"cantidad2":2,"signo":"+"}]}';
+    case "constelacion-puntos":
+      return '{"consigna":"","items":[{"cantidad":4,"cantidad2":3}]}';
+    case "arreglo-multiplicativo":
+      return '{"consigna":"","items":[{'+ic+',"filas":3,"columnas":4}]}';
+    case "texto-enmarcado":
+      return '{"consigna":"consigna de qué rodear o subrayar","items":[{"enunciado":"el texto corto completo, 3 a 5 líneas"}]}';
+    case "marco-dibujo":
+      return '{"consigna":"","items":[{"enunciado":"qué tiene que dibujar",'+ic+'}]}';
+    default:
+      return '{"consigna":"","items":[{"enunciado":"",'+ic+'}]}';
+  }
+}
+async function generarActividadTipo(reglas, resumen, act){
+  const t = byId(TIPOS_ACT, act.tipo);
+  let formato = formatoDe(act.tipo);
+  /* Una sola escena por actividad, no por ítem: es lo que se manda a ilustrar. */
+  formato = formato.replace(/^\{/, '{"escena":"descripción muy visual y concreta de UNA escena que ilustre toda la actividad: qué objetos concretos aparecen, cuántos, cómo están dispuestos, sin decir nombres de letras ni números sueltos",');
+  if(S.claseCompleta){
+    formato = formato.replace(/^\{/, '{"tema":"nombre corto de la clase","motivacion":"cómo se presenta el tema, una línea",'+
+      '"cierre":"una acción de cierre por un canal distinto al del desarrollo: pizarra, plastilina, decir en voz alta, dictado",');
+  }
+  const instruccion = "CONTENIDO ADAPTADO (base para los ejercicios):\n"+resumen+
+    "\n\nGenerá exactamente "+act.cant+" ejercicios de tipo '"+t.nom+"' ("+t.desc+")."+
+    "\nEl campo icono (si lo pide el formato) debe ser SIEMPRE un sustantivo concreto y dibujable de la lista dada."+
+    "\nEl campo escena es lo más importante: va a producir la ilustración principal que ve la alumna, tiene que ser rica en detalle concreto (no 'una fruta', sí 'una manzana roja grande y una banana amarilla, una al lado de la otra, sobre una mesa de madera').";
+  const r = await llamarJSON(reglas, instruccion, formato,
+    "Enunciados muy cortos. Sin markdown. Las cantidades son números enteros del 1 al 9.");
+  const act2 = {tipo:act.tipo, plantilla:plantillaDe(act.tipo), consigna:r.consigna||t.nom,
+          banco:r.banco||[], columnaA:r.columnaA, columnaB:r.columnaB,
+          tema:r.tema, motivacion:r.motivacion, cierre:r.cierre, escena:r.escena||"",
+          items:(r.items||[]).slice(0, Math.max(1,act.cant))};
+  if(r.escena){
+    act2.img = await generarIlustracionParaActividad(r.escena);
+    if(!act2.img) act2.imgError = ULTIMO_ERROR_IMG || "sin ilustración (motivo desconocido)";
+  }
+  return act2;
+}
+/* Respeta el tope por material: si ya se pidieron demasiadas imágenes reales
+   en esta generación, las actividades que siguen usan el ícono propio como
+   respaldo — nunca se corta la app, solo baja de "ilustración real" a "ícono". */
+async function generarIlustracionParaActividad(escena){
+  if(!IMG_FN_URL) return null;
+  S._imgsGeneradas = S._imgsGeneradas||0;
+  if(S._imgsGeneradas >= IMG_MAX_POR_MATERIAL) return null;
+  const img = await ilustracionCacheada(escena);
+  if(img) S._imgsGeneradas++;
+  return img;
+}
+async function generarRutas(reglas, resumen){
+  const formato = '{"a":"la versión más guiada de la misma tarea","b":"la versión intermedia","c":"la versión más autónoma"}';
+  return await llamarJSON(reglas,
+    "CONTENIDO ADAPTADO:\n"+resumen+"\n\nDescribí en una sola oración cada ruta (A, B y C): misma tarea, mismo objetivo, distinto nivel de exigencia.",
+    formato, "Una oración por ruta. Sin markdown.");
+}
+async function generar(){
+  S._imgsGeneradas = 0; /* tope de ilustraciones reales por material, no acumulado entre materiales */
+  const timer = pantallaCarga();
+  const paso = (t)=>{ const m=$("msgCarga"); if(m) m.textContent=t; };
+  try{
+    const reglas = reglasPedagogicas();
+    paso("Escribiendo el texto adaptado...");
+    const doc = await generarTexto(reglas);
+    const resumen = (doc.texto||[]).map(b=>b.contenido).join(" ").slice(0,2000) || contenidoFuente().slice(0,2000);
+
+    paso("Buscando el vocabulario clave...");
+    doc.vocabulario = await generarVocabulario(reglas, resumen);
+
+    doc.actividades = []; doc.rutas = null;
+    if(!S.soloTranscribir && S.actividades.length){
+      for(const act of S.actividades){
+        paso("Armando "+byId(TIPOS_ACT,act.tipo).nom.toLowerCase()+"...");
+        doc.actividades.push(await generarActividadTipo(reglas, resumen, act));
+      }
+      if(S.rutas){ paso("Armando las tres rutas..."); doc.rutas = await generarRutas(reglas, resumen); }
+    }
+    if(S.pictos){ paso("Buscando pictogramas de apoyo..."); await buscarPictogramas(doc); }
+    clearInterval(timer); S.doc = doc; renderDoc(); go("scDoc");
+  }catch(e){
+    clearInterval(timer);
+    $("scLoad").innerHTML = '<div class="card"><h2>No se pudo generar una parte del material</h2>'+
+      '<p>'+esc(e.message)+'</p>'+
+      '<div class="row"><button class="btn" onclick="generar()">Probar de nuevo</button>'+
+      '<button class="btn quiet" onclick="renderWizard();go(\'scWizard\')">Volver a la configuración</button></div></div>';
+  }
+}
+
+/* ====================== PICTOGRAMAS ====================== */
+function pictoRayuela(palabra){
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">'+
+    '<rect x="4" y="4" width="112" height="112" rx="16" fill="#FFF9F0" stroke="#2E2A45" stroke-width="4"/>'+
+    '<circle cx="60" cy="46" r="19" fill="#8EC6F0" stroke="#2E2A45" stroke-width="4"/>'+
+    '<path d="M26 96c6-18 20-26 34-26s28 8 34 26" fill="#7FD1B9" stroke="#2E2A45" stroke-width="4" stroke-linejoin="round"/>'+
+    '<text x="60" y="112" font-family="Verdana" font-size="13" text-anchor="middle" fill="#2E2A45">'+
+    esc(String(palabra).slice(0,14))+'</text></svg>';
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+async function buscarPictogramas(doc){
+  const voc = doc.vocabulario||[];
+  await Promise.all(voc.map(async v=>{
+    const q = (v.picto||v.palabra||"").trim();
+    v.img = pictoRayuela(v.palabra||q); v.fuente = "rayuela";
+    if(!q) return;
+    try{
+      const ctrl = new AbortController(); setTimeout(()=>ctrl.abort(),6000);
+      const r = await fetch("https://api.arasaac.org/api/pictograms/es/search/"+encodeURIComponent(q),{signal:ctrl.signal});
+      if(!r.ok) return;
+      const arr = await r.json();
+      if(Array.isArray(arr)&&arr.length&&arr[0]._id){
+        v.img = "https://static.arasaac.org/pictograms/"+arr[0]._id+"/"+arr[0]._id+"_300.png";
+        v.fuente = "arasaac";
+      }
+    }catch(e){ /* queda el pictograma propio de Rayuela */ }
+  }));
+}
+
+/* ====================== VISTA DEL MATERIAL ====================== */
+const LETRA = {mediana:"", grande:"grande", muy:"muy"};
+function lineas(n){ let h=""; for(let i=0;i<n;i++) h+='<div class="exline"></div>'; return h; }
+function renderActividad(a,i,col){
+  const enc = S.claseCompleta && a.motivacion
+    ? '<div class="claseHead"><p><b>Fecha:</b> ..........................................</p>'+
+      '<p><b>Contenido:</b> '+esc(a.contenido||(S.doc&&S.doc.contenido)||"")+'</p>'+
+      '<p><b>Tema:</b> '+esc(a.tema||a.consigna||"")+'</p>'+
+      '<p><b>Motivación:</b> '+esc(a.motivacion||"")+'</p><p><b>Desarrollo:</b></p></div>'
+    : '';
+  const cierre = S.claseCompleta && a.cierre
+    ? '<p class="cierre"><b>Cierre:</b> '+esc(a.cierre)+'</p>'+
+      '<p class="cierre"><b>Observaciones:</b> ................................................................</p>'
+    : '';
+  /* La ilustración real es la protagonista; el SVG de plantilla queda para
+     la parte mecánica (casilleros, uniones, tildes) y como respaldo si
+     todavía no está conectada la función de imágenes. */
+  const ilustracion = a.img
+    ? '<img class="ilustracionAct" src="'+esc(a.img)+'" alt="Ilustración de la actividad">'
+    : (a.imgError ? '<p class="hint" style="color:#C4483A;border:1px dashed #C4483A;border-radius:8px;padding:6px 10px;margin:0 0 8px">⚠ Sin ilustración real — '+esc(a.imgError)+'</p>' : '');
+  return '<div class="blk ficha">'+enc+
+    '<p class="consigna" style="color:'+col+'">'+(i+1)+'. '+esc(a.consigna||"")+'</p>'+
+    ilustracion+svgActividad(a,col)+cierre+'</div>';
+}
+function renderDoc(){
+  const d = S.doc||{}, col = byId(COLORES_ENFASIS,S.colorEnf).hex;
+  const voc = (d.vocabulario||[]).map(v=>'<div class="voc"><img src="'+esc(v.img)+'" alt="Pictograma de '+esc(v.palabra)+'">'+
+    '<div><b style="color:'+col+'">'+esc(v.palabra)+'</b><br>'+esc(v.significado||"")+'</div></div>').join("");
+  const cuerpo = (d.texto||[]).map(b=> b.tipo==="subtitulo"
+    ? '<h3 style="color:'+col+';margin:18px 0 8px">'+esc(b.contenido)+'</h3>'
+    : '<p>'+esc(b.contenido)+'</p>').join("");
+  const acts = (d.actividades||[]).map((a,i)=>renderActividad(a,i,col)).join("");
+  const rutas = d.rutas ? '<div class="blk" style="border-top:2px dashed '+col+';padding-top:14px;margin-top:22px">'+
+    '<h3 style="color:'+col+'">Tres rutas para la misma tarea</h3>'+
+    '<p><b>Ruta A.</b> '+esc(d.rutas.a||"")+'</p><p><b>Ruta B.</b> '+esc(d.rutas.b||"")+'</p><p><b>Ruta C.</b> '+esc(d.rutas.c||"")+'</p></div>' : "";
+  const doce = (S.notaDocente&&d.docente) ? '<div class="blk" style="border-top:2px dashed '+col+';padding-top:14px;margin-top:22px">'+
+    '<h3 style="color:'+col+'">Para la docente</h3>'+
+    '<p><b>Objetivo:</b> '+esc(d.objetivo||"")+'</p>'+
+    '<p><b>Lo innegociable:</b> '+esc(d.innegociable||"")+'</p>'+
+    '<p><b>Evidencia que acepto:</b> '+esc(d.docente.evidencia||"")+'</p>'+
+    '<p><b>Evidencia alternativa:</b> '+esc(d.docente.alternativa||"")+'</p>'+
+    (d.docente.tiempo?'<p><b>Duración estimada:</b> '+esc(d.docente.tiempo)+'</p>':"")+'</div>' : "";
+  const origen = (S.sourceImages&&S.sourceImages.length) ? '<div class="blk" style="border-top:2px dashed '+col+';padding-top:14px;margin-top:22px">'+
+    '<h3 style="color:'+col+'">Material visual de origen</h3>'+
+    '<p class="hint">Se conservan las imágenes del archivo importado para que no se pierdan al adaptar el contenido.</p>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">'+
+    S.sourceImages.map(x=>'<div style="border:1px solid var(--borde);border-radius:12px;padding:6px;background:#fff">'+
+      '<img src="'+esc(x.data)+'" alt="'+esc(x.title||"")+'" style="width:100%;height:160px;object-fit:contain;background:#F8F5EF;border-radius:8px">'+
+      '<small style="display:block;margin-top:4px;color:var(--tinta-suave)">'+esc(x.title||"")+'</small></div>').join("")+
+    '</div></div>' : "";
+  const p = S.perfiles.find(x=>x.id===S.perfilId);
+  $("scDoc").innerHTML = `
+  <div class="between" style="margin-bottom:18px">
+    <div><h1>Material listo</h1><p class="hint" style="margin-top:6px">Revisalo antes de llevarlo al aula. Podés editar el texto acá mismo antes de descargarlo.</p></div>
+    <div>${tiza(54,"#7FD1B9")}</div>
+  </div>
+  <div class="row" style="margin-bottom:18px">
+    <button class="btn ok" onclick="descargarWord()">Descargar en Word</button>
+    <button class="btn ghost" onclick="renderWizard();go('scWizard')">Cambiar la configuración</button>
+    <button class="btn quiet" onclick="renderHome();go('scHome')">Empezar otro material</button>
+    <label style="display:flex;gap:8px;align-items:center;font-weight:400;margin:0">
+      <input type="checkbox" style="width:20px;height:20px" onchange="document.getElementById('docBody').contentEditable=this.checked">
+      Editar el texto
+    </label>
+  </div>
+  <div id="estadoDesc" class="hint"></div>
+  <div class="doc" id="docBody" data-size="${LETRA[S.tamano]}" data-lead="${S.interlineado}">
+    <h2 style="color:${col}">${esc(d.titulo||"Material adaptado")}</h2>
+    <p class="lead">${S.grado}.º grado · ${esc(byId(AREAS,S.area).nom)}${p?" · "+esc(p.nombre):""} · Nivel ${esc(byId(NIVELES,S.nivel).nom)}</p>
+    ${voc}${cuerpo}
+    ${acts?'<h3 style="color:'+col+';margin:26px 0 10px">Actividades</h3>'+acts:""}
+    ${rutas}${doce}${origen}
+  </div>`;
+}
+
+/* ====================== EXPORTAR A WORD ====================== */
+const XE = s => String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function medidas(){
+  const base = S.tamano==="muy"?48:(S.tamano==="grande"?36:28);
+  const line = S.interlineado==="amplio"?456:360;
+  return {base, line, col: byId(COLORES_ENFASIS,S.colorEnf).hex.replace("#","")};
+}
+function estado(t){ const e=$("estadoDesc"); if(e) e.textContent=t; }
+function nombreArchivo(){
+  const t = ((S.doc&&S.doc.titulo)||"material").toLowerCase().replace(/[^a-z0-9áéíóúñ ]/gi,"").trim().replace(/\s+/g,"-");
+  return "rayuela-"+t.slice(0,50);
+}
+function bajar(blob, nombre){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = nombre; document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1500);
+}
+function cargarJSZip(){
+  if(window.JSZip) return Promise.resolve(window.JSZip);
+  return new Promise((ok,fail)=>{
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js";
+    s.onload = ()=> window.JSZip ? ok(window.JSZip) : fail(new Error("sin jszip"));
+    s.onerror = ()=> fail(new Error("sin jszip"));
+    document.head.appendChild(s);
+    setTimeout(()=>{ if(!window.JSZip) fail(new Error("sin jszip")); },9000);
+  });
+}
+
+/* --- piezas de OOXML --- */
+function P(txt,o){
+  o = o||{}; const m = medidas();
+  const sz = o.size||m.base;
+  const bdr = o.linea ? '<w:pBdr><w:bottom w:val="dotted" w:sz="8" w:space="2" w:color="B9B3C4"/></w:pBdr>' : '';
+  const ppr = '<w:pPr>'+bdr+'<w:spacing w:line="'+m.line+'" w:lineRule="auto" w:after="'+(o.after==null?140:o.after)+'"/>'+
+    (o.ind?'<w:ind w:left="'+o.ind+'"/>':'')+'<w:jc w:val="left"/></w:pPr>';
+  if(!txt) return '<w:p>'+ppr+'</w:p>';
+  const rpr = '<w:rPr><w:rFonts w:ascii="Verdana" w:hAnsi="Verdana"/><w:sz w:val="'+sz+'"/><w:szCs w:val="'+sz+'"/>'+
+    (o.bold?'<w:b/>':'')+(o.color?'<w:color w:val="'+o.color+'"/>':'')+'<w:spacing w:val="4"/></w:rPr>';
+  return '<w:p>'+ppr+'<w:r>'+rpr+'<w:t xml:space="preserve">'+XE(txt)+'</w:t></w:r></w:p>';
+}
+function imgP(rid,id,cx,cy){
+  cx = cx||800100; cy = cy||cx;
+  return '<w:p><w:pPr><w:spacing w:after="60"/></w:pPr><w:r><w:drawing>'+
+  '<wp:inline distT="0" distB="0" distL="0" distR="0">'+
+  '<wp:extent cx="'+cx+'" cy="'+cy+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/>'+
+  '<wp:docPr id="'+id+'" name="Pictograma '+id+'" descr="Pictograma de apoyo"/>'+
+  '<wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>'+
+  '<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'+
+  '<pic:pic><pic:nvPicPr><pic:cNvPr id="'+id+'" name="picto'+id+'.png"/><pic:cNvPicPr/></pic:nvPicPr>'+
+  '<pic:blipFill><a:blip r:embed="'+rid+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'+
+  '<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm>'+
+  '<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic>'+
+  '</a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>';
+}
+/* La parte mecánica (casilleros, uniones, tildes, tabla) SIEMPRE se arma en
+   texto/tabla nativo de Word, nunca como imagen: es la parte que tiene que
+   funcionar sí o sí, sin depender de que una ilustración se haya podido
+   generar. La ilustración real (si existe) ya se insertó arriba, aparte. */
+function tablaSimple(filas){ // [[celda1,celda2], ...] -> tabla de 2 columnas
+  const tr = filas.map(f=>
+    '<w:tr>'+f.map(c=>
+      '<w:tc><w:tcPr><w:tcBorders><w:top w:val="single" w:sz="4" w:color="E3D9C9"/>'+
+      '<w:bottom w:val="single" w:sz="4" w:color="E3D9C9"/><w:left w:val="single" w:sz="4" w:color="E3D9C9"/>'+
+      '<w:right w:val="single" w:sz="4" w:color="E3D9C9"/></w:tcBorders></w:tcPr>'+
+      P(c,{after:0})+'</w:tc>').join("")+'</w:tr>').join("");
+  return '<w:tbl><w:tblPr><w:tblW w:w="0" w:type="auto"/><w:tblLayout w:type="fixed"/></w:tblPr>'+
+    '<w:tblGrid><w:gridCol w:w="4500"/><w:gridCol w:w="4500"/></w:tblGrid>'+tr+'</w:tbl><w:p/>';
+}
+function mecanicaDocx(a,col,m){
+  const its = a.items||[];
+  let x = "";
+  switch(a.plantilla){
+    case "opcion-visual":
+      its.forEach((it,j)=>{
+        x += P((j+1)+") "+(it.enunciado||""),{ind:280,after:60});
+        const ops=(it.opciones&&it.opciones.length)?it.opciones:["Verdadero","Falso"];
+        ops.forEach(o=> x += P("◯  "+o,{ind:620,after:50}));
+        x += P("",{after:60});
+      });
+      break;
+    case "unir-con-flechas":
+      x += tablaSimple(its.map(it=>[String(it.enunciado||""), String(it.par||it.respuesta||"")]));
+      break;
+    case "completar-con-apoyo":
+      if(a.banco&&a.banco.length) x += P("Palabras para usar: "+a.banco.join(" · "),{after:120,ind:280});
+      its.forEach((it,j)=> x += P((j+1)+") "+String(it.enunciado||"").replace(/_+/g,"__________"),{ind:280,after:100}));
+      break;
+    case "secuencia-para-ordenar":
+      its.forEach((it,j)=> x += P("[     ]   "+(it.enunciado||""),{ind:280,after:100}));
+      break;
+    case "clasificar-tabla":
+      x += P((a.columnaA||"Sí")+"   /   "+(a.columnaB||"No"),{bold:true,color:col,after:80,ind:280});
+      x += P(its.map(it=>it.enunciado).filter(Boolean).join("   ·   "),{ind:280,after:100});
+      break;
+    case "conteo-clipart":
+      its.forEach(()=>{
+        x += P("Contá los objetos de la ilustración y escribí cuántos hay:",{ind:280,after:60});
+        x += P("",{linea:true,after:160,ind:280});
+      });
+      break;
+    case "trazado-grande":{
+      const it = its[0]||{};
+      x += P(String(it.letra||"").toUpperCase(),{bold:true,size:(m.base+120),color:col,after:80});
+      x += P("Trazá sobre la letra o número, empezando desde arriba.",{after:120});
+      break;
+    }
+    case "operacion-con-conteo":
+      its.forEach(it=>{
+        const s = (it.signo==="-")?"−":"+";
+        x += P((it.cantidad||"")+" "+s+" "+(it.cantidad2||"")+" = ______",{size:m.base+6,after:120,ind:280});
+      });
+      break;
+    case "constelacion-puntos":
+      its.forEach(it=> x += P((it.cantidad||"")+" + "+(it.cantidad2||"")+" = ______",{size:m.base+6,after:120,ind:280}));
+      break;
+    case "arreglo-multiplicativo":
+      its.forEach(it=> x += P((it.filas||"")+" × "+(it.columnas||"")+" = ______",{size:m.base+6,after:120,ind:280}));
+      break;
+    case "texto-enmarcado":
+      its.forEach(it=> x += P(it.enunciado||"",{after:160,ind:280}));
+      break;
+    case "marco-dibujo":
+      its.forEach((it,j)=>{
+        x += P((j+1)+") "+(it.enunciado||""),{ind:280,after:60});
+        x += P("",{after:60}); x += P("",{after:60}); x += P("",{linea:true,after:200,ind:280});
+      });
+      break;
+    default:
+      its.forEach((it,j)=>{
+        x += P((j+1)+") "+(it.enunciado||""),{ind:280,after:60});
+        const n = a.tipo==="escritura"?4:2;
+        for(let k=0;k<n;k++) x += P("",{linea:true,after:120,ind:280});
+      });
+  }
+  return x;
+}
+
+function cuerpoDocx(imgs, imgsAct, imgsOrigen){
+  const d = S.doc||{}, m = medidas(), col = m.col;
+  const p = S.perfiles.find(x=>x.id===S.perfilId);
+  imgsAct = imgsAct||[];
+  let x = "";
+  x += P(d.titulo||"Material adaptado",{bold:true,size:m.base+10,color:col,after:60});
+  x += P(S.grado+".º grado · "+byId(AREAS,S.area).nom+(p?" · "+p.nombre:"")+" · Nivel "+byId(NIVELES,S.nivel).nom,
+        {size:Math.max(20,m.base-6),after:220});
+  (d.vocabulario||[]).forEach((v,i)=>{
+    const im = imgs.find(g=>g.i===i);
+    if(im) x += imgP(im.rid, 100+i);
+    x += P(v.palabra||"",{bold:true,color:col,after:40});
+    x += P(v.significado||"",{after:160});
+  });
+  (d.texto||[]).forEach(b=>{
+    x += b.tipo==="subtitulo" ? P(b.contenido,{bold:true,color:col,size:m.base+4,after:80})
+                              : P(b.contenido,{});
+  });
+  const acts = d.actividades||[];
+  if(acts.length){
+    if(!S.claseCompleta) x += P("Actividades",{bold:true,color:col,size:m.base+6,after:120});
+    acts.forEach((a,i)=>{
+      if(S.claseCompleta){
+        x += P("Fecha: ..........................................",{size:Math.max(18,m.base-6),after:40});
+        x += P("Contenido: "+(a.contenido||d.contenido||""),{size:Math.max(18,m.base-6),after:40});
+        x += P("Tema: "+(a.tema||a.consigna||""),{size:Math.max(18,m.base-6),after:40});
+        if(a.motivacion) x += P("Motivación: "+a.motivacion,{size:Math.max(18,m.base-6),after:40});
+        x += P("Desarrollo:",{size:Math.max(18,m.base-6),bold:true,after:60});
+      }
+      x += P((i+1)+". "+(a.consigna||""),{bold:true,color:col,after:80});
+      const im = imgsAct.find(g=>g.i===i);
+      if(im) x += imgP(im.rid, 300+i, im.cx, im.cy);
+      x += mecanicaDocx(a, col, m);
+      if(S.claseCompleta){
+        if(a.cierre) x += P("Cierre: "+a.cierre,{size:Math.max(18,m.base-6),after:40});
+        x += P("Observaciones: ................................................................",
+               {size:Math.max(18,m.base-6),after:240});
+      }
+    });
+  }
+  if(d.rutas){
+    x += P("Tres rutas para la misma tarea",{bold:true,color:col,size:m.base+4,after:100});
+    x += P("Ruta A. "+(d.rutas.a||""),{}); x += P("Ruta B. "+(d.rutas.b||""),{}); x += P("Ruta C. "+(d.rutas.c||""),{});
+  }
+  if(S.notaDocente&&d.docente){
+    x += P("Para la docente",{bold:true,color:col,size:m.base+4,after:100});
+    x += P("Objetivo: "+(d.objetivo||""),{});
+    x += P("Lo innegociable: "+(d.innegociable||""),{});
+    x += P("Evidencia que acepto: "+(d.docente.evidencia||""),{});
+    x += P("Evidencia alternativa: "+(d.docente.alternativa||""),{});
+    if(d.docente.tiempo) x += P("Duración estimada: "+d.docente.tiempo,{});
+    x += P("Generado con Rayuela. Revisá el material antes de llevarlo al aula.",{size:20,after:0});
+  }
+  if(S.sourceImages && S.sourceImages.length && imgsOrigen && imgsOrigen.length){
+    x += P("Material visual de origen",{bold:true,color:col,size:m.base+4,after:100});
+    imgsOrigen.forEach(g=> x += imgP(g.rid, 500+g.i, g.cx, g.cy));
+  }
+  return x;
+}
+async function traerImagenes(){
+  const voc = (S.doc&&S.doc.vocabulario)||[]; const out = [];
+  for(let i=0;i<voc.length;i++){
+    const u = voc[i].img||"";
+    if(!/^https?:/.test(u)) continue;
+    try{
+      const r = await fetch(u); if(!r.ok) continue;
+      out.push({i, buf: await r.arrayBuffer(), rid:"rId"+(100+i)});
+    }catch(e){}
+  }
+  return out;
+}
+/* Convierte una plantilla SVG en PNG para poder incrustarla en el Word.
+   Se dibuja al doble de tamaño para que no se vea pixelada al imprimir. */
+/* Lee el ancho/alto real de una imagen (para no deformarla en el Word) sin
+   pasar por canvas — canvas.toBlob() es lo que fallaba en este sandbox. */
+function dimensionesImagen(dataUrl){
+  return new Promise((ok,fail)=>{
+    const img = new Image();
+    img.onload = ()=> ok({w:img.naturalWidth||1024, h:img.naturalHeight||1024});
+    img.onerror = ()=> fail(new Error("no se pudo leer la imagen"));
+    img.src = dataUrl;
+  });
+}
+/* Ancho de una ilustración de actividad en el Word: ~10 cm */
+const ANCHO_ILUSTRACION = 3600000;
+async function imagenesActividadesReales(){
+  const acts = (S.doc&&S.doc.actividades)||[], out = [];
+  for(let i=0;i<acts.length;i++){
+    const url = acts[i].img;
+    if(!url) continue;
+    try{
+      const dim = await dimensionesImagen(url);
+      const buf = await (await fetch(url)).arrayBuffer(); // fetch de un data: URL, no sale a internet
+      const cy = Math.round(ANCHO_ILUSTRACION * (dim.h/dim.w));
+      out.push({i, buf, rid:"rId"+(300+i), cx:ANCHO_ILUSTRACION, cy});
+    }catch(e){ /* sin ilustración real, esa actividad sale solo con la parte mecánica */ }
+  }
+  return out;
+}
+/* Las imágenes del material original importado (Word/PDF/foto), incrustadas
+   tal cual al final del Word para que no se pierdan al adaptar el contenido. */
+async function imagenesOrigenReales(){
+  const imgs = S.sourceImages||[], out = [];
+  for(let i=0;i<imgs.length;i++){
+    try{
+      const dim = await dimensionesImagen(imgs[i].data);
+      const buf = await (await fetch(imgs[i].data)).arrayBuffer();
+      const cy = Math.round(ANCHO_ILUSTRACION * (dim.h/dim.w));
+      out.push({i, buf, rid:"rId"+(500+i), cx:ANCHO_ILUSTRACION, cy});
+    }catch(e){}
+  }
+  return out;
+}
+async function descargarWord(){
+  estado("Armando el archivo de Word...");
+  try{
+    const JSZ = await cargarJSZip();
+    const imgs = await traerImagenes();
+    estado("Preparando las ilustraciones...");
+    const imgsAct = await imagenesActividadesReales();
+    const imgsOrigen = await imagenesOrigenReales();
+    const zip = new JSZ();
+    /* Extensión correcta también para jpeg de origen (además de png) */
+    zip.file("[Content_Types].xml",
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'+
+      '<Default Extension="xml" ContentType="application/xml"/>'+
+      '<Default Extension="png" ContentType="image/png"/>'+
+      '<Default Extension="jpeg" ContentType="image/jpeg"/>'+
+      '<Default Extension="jpg" ContentType="image/jpeg"/>'+
+      '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'+
+      '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'+
+      '</Types>');
+    zip.folder("_rels").file(".rels",
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'+
+      '</Relationships>');
+    const m = medidas();
+    zip.folder("word").file("styles.xml",
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'+
+      '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Verdana" w:hAnsi="Verdana" w:cs="Verdana"/>'+
+      '<w:sz w:val="'+m.base+'"/><w:szCs w:val="'+m.base+'"/></w:rPr></w:rPrDefault>'+
+      '<w:pPrDefault><w:pPr><w:spacing w:line="'+m.line+'" w:lineRule="auto" w:after="140"/><w:jc w:val="left"/></w:pPr></w:pPrDefault>'+
+      '</w:docDefaults>'+
+      '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/></w:style>'+
+      '</w:styles>');
+    let rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>';
+    imgs.forEach(g=>{
+      zip.folder("word").folder("media").file("picto"+g.i+".png", g.buf);
+      rels += '<Relationship Id="'+g.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/picto'+g.i+'.png"/>';
+    });
+    imgsAct.forEach(g=>{
+      zip.folder("word").folder("media").file("act"+g.i+".png", g.buf);
+      rels += '<Relationship Id="'+g.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/act'+g.i+'.png"/>';
+    });
+    imgsOrigen.forEach(g=>{
+      const ext = /^data:image\/jpe?g/i.test((S.sourceImages[g.i]||{}).data||"") ? "jpeg" : "png";
+      zip.folder("word").folder("media").file("origen"+g.i+"."+ext, g.buf);
+      rels += '<Relationship Id="'+g.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/origen'+g.i+'.'+ext+'"/>';
+    });
+    zip.folder("word").folder("_rels").file("document.xml.rels", rels+'</Relationships>');
+    zip.folder("word").file("document.xml",
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+
+      '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" '+
+      'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" '+
+      'xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" '+
+      'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" '+
+      'xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'+
+      '<w:body>'+cuerpoDocx(imgs, imgsAct, imgsOrigen)+
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/>'+
+      '<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/>'+
+      '</w:sectPr></w:body></w:document>');
+    const blob = await zip.generateAsync({type:"blob",
+      mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+    bajar(blob, nombreArchivo()+".docx");
+    estado("Listo: se descargó el archivo .docx. Abrilo con Word para editarlo.");
+  }catch(e){
+    estado("Se descargó una versión compatible con Word (.doc). Al abrirla, guardala como .docx si querés.");
+    bajarDocHTML();
+  }
+}
+function bajarDocHTML(){
+  const m = medidas(), col = "#"+m.col;
+  const pt = S.tamano==="muy"?"23pt":(S.tamano==="grande"?"19pt":"14pt");
+  const lh = S.interlineado==="amplio"?"190%":"150%";
+  const cont = $("docBody") ? $("docBody").innerHTML : "";
+  const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">'+
+    '<head><meta charset="utf-8"><title>Rayuela</title>'+
+    '<style>@page{size:A4;margin:2cm}body{font-family:Verdana,Arial,sans-serif;font-size:'+pt+';line-height:'+lh+';color:#2E2A45;text-align:left;letter-spacing:.2pt}'+
+    'h2,h3{font-family:Verdana,Arial,sans-serif;color:'+col+'}img{max-width:2.2cm}.exline{border-bottom:1px dotted #999;height:1.1em}</style></head><body>'+
+    cont+'</body></html>';
+  bajar(new Blob(["\ufeff"+html],{type:"application/msword"}), nombreArchivo()+".doc");
+}
+
+/* ====================== ARRANQUE ======================
+   Ya no arranca acá: lo dispara auth.onAuthStateChanged() más arriba,
+   apenas Firebase confirma si hay sesión iniciada o no. */
+</script>
+</body>
+</html>
