@@ -693,16 +693,13 @@ const byId = (arr,id) => arr.find(x=>x.id===id);
    servidor, que no se puede evitar inspeccionando el código. */
 const PERMITIDOS = ["juliomonti91@gmail.com","luciadvalverde14@gmail.com"];
 
-/* TODO: reemplazar por la configuración real del proyecto — está en
-   Firebase Console → ⚙️ Configuración del proyecto → tus apps → app web.
-   No es un dato secreto, es público por diseño. */
 const FIREBASE_CONFIG = {
-  apiKey: "PEGAR_ACA",
+  apiKey: "AIzaSyBOJHI0ACyYShV1FI93YsUaXpLP28arcKU",
   authDomain: "rayuela-app-279da.firebaseapp.com",
   projectId: "rayuela-app-279da",
-  storageBucket: "rayuela-app-279da.appspot.com",
-  messagingSenderId: "PEGAR_ACA",
-  appId: "PEGAR_ACA"
+  storageBucket: "rayuela-app-279da.firebasestorage.app",
+  messagingSenderId: "15702538750",
+  appId: "1:15702538750:web:0d9520e568f129ca3ea8af"
 };
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth = firebase.auth();
