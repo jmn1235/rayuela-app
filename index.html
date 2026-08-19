@@ -646,7 +646,7 @@ const PASOS = ["Fuente","Alumno","Actividades","Formato","Revisar"];
 const FN_BASE = "https://us-central1-rayuela-app-279da.cloudfunctions.net";
 const IMG_FN_URL = FN_BASE+"/generarIlustracion";
 const TXT_FN_URL = FN_BASE+"/generarTexto";
-const IMG_MAX_POR_MATERIAL = 6; /* tope de imágenes reales por generación, del lado del cliente */
+const IMG_MAX_POR_MATERIAL = 10; /* tope de imágenes reales por generación (vocabulario + actividades comparten este cupo) */
 async function hashTexto(t){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("").slice(0,24);
@@ -1471,23 +1471,19 @@ function pictoRayuela(palabra){
     esc(String(palabra).slice(0,14))+'</text></svg>';
   return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
 }
+/* ARASAAC quedó descartado: su búsqueda por palabra clave puede traer un
+   pictograma totalmente desubicado (ej. "celda" trayendo un ícono de silla
+   de ruedas). Ahora el vocabulario usa la misma ilustración real que las
+   actividades — una sola fuente de calidad en todo el documento. */
 async function buscarPictogramas(doc){
   const voc = doc.vocabulario||[];
-  await Promise.all(voc.map(async v=>{
-    const q = (v.picto||v.palabra||"").trim();
-    v.img = pictoRayuela(v.palabra||q); v.fuente = "rayuela";
-    if(!q) return;
-    try{
-      const ctrl = new AbortController(); setTimeout(()=>ctrl.abort(),6000);
-      const r = await fetch("https://api.arasaac.org/api/pictograms/es/search/"+encodeURIComponent(q),{signal:ctrl.signal});
-      if(!r.ok) return;
-      const arr = await r.json();
-      if(Array.isArray(arr)&&arr.length&&arr[0]._id){
-        v.img = "https://static.arasaac.org/pictograms/"+arr[0]._id+"/"+arr[0]._id+"_300.png";
-        v.fuente = "arasaac";
-      }
-    }catch(e){ /* queda el pictograma propio de Rayuela */ }
-  }));
+  for(const v of voc){
+    v.img = pictoRayuela(v.palabra||v.picto||""); v.fuente = "rayuela"; /* respaldo inmediato */
+    const escena = "Un solo objeto claramente identificable: "+(v.palabra||v.picto||"")+
+      ". "+(v.significado||"")+" Ilustración de una sola cosa, sin texto, sin escena de fondo compleja.";
+    const real = await generarIlustracionParaActividad(escena);
+    if(real){ v.img = real; v.fuente = "ilustracion"; }
+  }
 }
 
 /* ====================== VISTA DEL MATERIAL ====================== */
@@ -1736,6 +1732,7 @@ function cuerpoDocx(imgs, imgsAct, imgsOrigen){
       x += P((i+1)+". "+(a.consigna||""),{bold:true,color:col,after:80});
       const im = imgsAct.find(g=>g.i===i);
       if(im) x += imgP(im.rid, 300+i, im.cx, im.cy);
+      else if(a.imgError) x += P("⚠ Sin ilustración real — "+a.imgError,{color:"C4483A",size:Math.max(18,m.base-6),after:100});
       x += mecanicaDocx(a, col, m);
       if(S.claseCompleta){
         if(a.cierre) x += P("Cierre: "+a.cierre,{size:Math.max(18,m.base-6),after:40});
@@ -1767,10 +1764,11 @@ async function traerImagenes(){
   const voc = (S.doc&&S.doc.vocabulario)||[]; const out = [];
   for(let i=0;i<voc.length;i++){
     const u = voc[i].img||"";
-    if(!/^https?:/.test(u)) continue;
+    if(!/^(https?:|data:image\/(png|jpe?g))/.test(u)) continue; /* el SVG de respaldo no se puede incrustar así en Word */
     try{
       const r = await fetch(u); if(!r.ok) continue;
-      out.push({i, buf: await r.arrayBuffer(), rid:"rId"+(100+i)});
+      const ext = /\.jpe?g(\?|$)/i.test(u) || /^data:image\/jpe?g/i.test(u) ? "jpeg" : "png";
+      out.push({i, buf: await r.arrayBuffer(), rid:"rId"+(100+i), ext});
     }catch(e){}
   }
   return out;
@@ -1857,8 +1855,8 @@ async function descargarWord(){
       '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
       '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>';
     imgs.forEach(g=>{
-      zip.folder("word").folder("media").file("picto"+g.i+".png", g.buf);
-      rels += '<Relationship Id="'+g.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/picto'+g.i+'.png"/>';
+      zip.folder("word").folder("media").file("picto"+g.i+"."+g.ext, g.buf);
+      rels += '<Relationship Id="'+g.rid+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/picto'+g.i+'.'+g.ext+'"/>';
     });
     imgsAct.forEach(g=>{
       zip.folder("word").folder("media").file("act"+g.i+".png", g.buf);
